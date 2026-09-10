@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -40,6 +42,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     private ?bool $isActive = null;
+
+    /**
+     * @var Collection<int, TimeEntry>
+     */
+    #[ORM\OneToMany(targetEntity: TimeEntry::class, mappedBy: 'employee')]
+    private Collection $timeEntries;
+
+    public function __construct()
+    {
+        $this->timeEntries = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -148,6 +161,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsActive(bool $isActive): static
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TimeEntry>
+     */
+    public function getTimeEntries(): Collection
+    {
+        return $this->timeEntries;
+    }
+
+    public function addTimeEntry(TimeEntry $timeEntry): static
+    {
+        if (!$this->timeEntries->contains($timeEntry)) {
+            $this->timeEntries->add($timeEntry);
+            $timeEntry->setEmployee($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTimeEntry(TimeEntry $timeEntry): static
+    {
+        if ($this->timeEntries->removeElement($timeEntry)) {
+            // set the owning side to null (unless already changed)
+            if ($timeEntry->getEmployee() === $this) {
+                $timeEntry->setEmployee(null);
+            }
+        }
 
         return $this;
     }

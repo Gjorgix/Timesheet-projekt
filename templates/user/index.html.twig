@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Użytkownicy{% endblock %}
+
+{% block body %}
+    <h1>Użytkownicy</h1>
+    <p>
+        <a href="{{ path('app_user_new') }}">Dodaj użytkownika</a>
+    </p>
+    <table>
+        <thead>
+        <tr>
+            <th>Imię</th>
+            <th>Nazwisko</th>
+            <th>Email</th>
+            <th>Rola</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.firstName }}</td>
+                <td>{{ user.lastName }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                    {{ user.roles|join(', ') }}
+                </td>
+                <td>
+                    {% if user.isActive %}
+                        Aktywny
+                    {% else %}
+                        Nieaktywny
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">Brak użytkowników.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <p>
+        <a href="{{ path('app_admin') }}">Panel administratora</a>
+        |
+        <a href="{{ path('app_dashboard') }}">Dashboard</a>
+        |
+        <a href="{{ path('app_logout') }}">Wyloguj</a>
+    </p>
+{% endblock %}
