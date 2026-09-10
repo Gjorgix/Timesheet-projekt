@@ -94,4 +94,17 @@ final class UserController extends AbstractController
             'user' => $user,
         ]);
     }
+
+    #[Route('/admin/users/{id}/deactivate', name: 'app_user_deactivate')]
+    public function deactivate(
+        User $user,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $user->setIsActive(false);
+
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_user_index');
+    }
+
 }
