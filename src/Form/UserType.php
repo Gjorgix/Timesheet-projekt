@@ -24,9 +24,11 @@ class UserType extends AbstractType
                     'Pracownik' => 'ROLE_USER',
                     'Administrator' => 'ROLE_ADMIN',
                 ],
+                'data' => $options['role'],
             ])
             ->add('plainPassword', PasswordType::class, [
                 'mapped' => false,
+                'required' => !$options['is_edit'],
             ])
         ;
     }
@@ -35,6 +37,11 @@ class UserType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'is_edit' => false,
+            'role' => 'ROLE_USER',
         ]);
+
+        $resolver->setAllowedTypes('is_edit', 'bool');
+        $resolver->setAllowedTypes('role', 'string');
     }
 }

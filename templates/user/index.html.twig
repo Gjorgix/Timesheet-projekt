@@ -15,6 +15,7 @@
             <th>Email</th>
             <th>Rola</th>
             <th>Status</th>
+            <th>Akcje</th>
         </tr>
         </thead>
 
@@ -34,10 +35,15 @@
                         Nieaktywny
                     {% endif %}
                 </td>
+                <td>
+                    <a href="{{ path('app_user_edit', {id: user.id}) }}">
+                        Edytuj
+                    </a>
+                </td>
             </tr>
         {% else %}
             <tr>
-                <td colspan="5">Brak użytkowników.</td>
+                <td colspan="6">Brak użytkowników.</td>
             </tr>
         {% endfor %}
         </tbody>

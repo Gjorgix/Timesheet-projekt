@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edytuj użytkownika{% endblock %}
+
+{% block body %}
+    <h1>Edytuj użytkownika</h1>
+
+    {{ form_start(form) }}
+
+    {{ form_row(form.email) }}
+    {{ form_row(form.firstName) }}
+    {{ form_row(form.lastName) }}
+    {{ form_row(form.role) }}
+    {{ form_row(form.plainPassword) }}
+    {{ form_row(form.isActive) }}
+
+    <button type="submit">Zapisz zmiany</button>
+
+    {{ form_end(form) }}
+
+    <p>
+        <a href="{{ path('app_user_index') }}">Powrót do listy użytkowników</a>
+    </p>
+{% endblock %}

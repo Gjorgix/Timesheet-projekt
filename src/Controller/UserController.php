@@ -57,4 +57,41 @@ final class UserController extends AbstractController
             'form' => $form,
         ]);
     }
+
+    #[Route('/admin/users/{id}/edit', name: 'app_user_edit')]
+    public function edit(
+        User $user,
+        Request $request,
+        UserPasswordHasherInterface $passwordHasher,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $form = $this->createForm(UserType::class, $user, [
+            'is_edit' => true,
+            'role' => $user->getRoles()[0] ?? 'ROLE_USER',
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $role = $form->get('role')->getData();
+            $plainPassword = $form->get('plainPassword')->getData();
+
+            $user->setRoles([$role]);
+
+            if ($plainPassword) {
+                $user->setPassword(
+                    $passwordHasher->hashPassword($user, $plainPassword)
+                );
+            }
+
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_user_index');
+        }
+
+        return $this->render('user/edit.html.twig', [
+            'form' => $form,
+            'user' => $user,
+        ]);
+    }
 }
