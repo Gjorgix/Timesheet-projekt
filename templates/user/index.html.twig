@@ -39,12 +39,17 @@
                     <a href="{{ path('app_user_edit', {id: user.id}) }}">
                         Edytuj
                     </a>
-                    {% if user.isActive %}
-                        |
-                        <a href="{{ path('app_user_deactivate', {id: user.id}) }}">
-                            Dezaktywuj
-                        </a>
-                    {% endif %}
+                    <form method="post"
+                        {% if user.isActive %}
+                          action="{{ path('app_user_deactivate', {id: user.id}) }}"
+                          style="display: inline">
+                        <button type="submit">Dezaktywuj</button>
+                        {% else %}
+                            action="{{ path('app_user_activate', {id: user.id}) }}"
+                            style="display: inline">
+                            <button type="submit">Aktywuj</button>
+                        {% endif %}
+                    </form>
                 </td>
             </tr>
         {% else %}

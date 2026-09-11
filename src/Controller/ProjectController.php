@@ -41,4 +41,39 @@ final class ProjectController extends AbstractController
 
         return $this->render('project/new.html.twig', ['form' => $form]);
     }
+
+    #[Route('/admin/projects/{id}/edit', name: 'app_project_edit')]
+    public function edit(Request $request, Project $project, EntityManagerInterface $entityManager):
+        Response{
+        $form = $this->createForm(ProjectType::class, $project);
+
+        $form->handleRequest($request);
+        if($form->isSubmitted() && $form->isValid()){
+
+            $entityManager->flush();
+            return $this->redirectToRoute('app_project_index');
+        }
+
+        return $this->render('project/edit.html.twig', [
+            'project' => $project,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/admin/projects/{id}/deactivate', name: 'app_project_deactivate', methods: ['POST'])]
+    public function deactivate(Project $project, EntityManagerInterface $entityManager) : Response{
+        $project->setIsActive(false);
+        $entityManager->flush();
+        return $this->redirectToRoute('app_project_index');
+
+    }
+
+    #[Route('/admin/projects/{id}/activate', name: 'app_project_activate', methods: ['POST'])]
+    public function activate(Project $project, EntityManagerInterface $entityManager): Response
+    {
+        $project->setIsActive(true);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_project_index');
+    }
 }

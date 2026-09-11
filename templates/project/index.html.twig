@@ -18,6 +18,7 @@
             <th>Nazwa</th>
             <th>Opis</th>
             <th>Status</th>
+            <th>Akcje</th>
         </tr>
         </thead>
 
@@ -33,10 +34,26 @@
                         Nieaktywny
                     {% endif %}
                 </td>
+                <td>
+                    ID: {{ project.id }}
+                    <a href="{{ path('app_project_edit', {id: project.id}) }}">Edytuj</a>
+                    <form method="post"
+                    {% if project.isActive %}
+                              action="{{ path('app_project_deactivate', {id: project.id}) }}"
+                              style="display: inline">
+                            <button type="submit">Dezaktywuj</button>
+                    {% else %}
+                        action="{{ path('app_project_activate', {id: project.id}) }}"
+                        style="display: inline">
+                        <button type="submit">Aktywuj</button>
+                    {% endif %}
+                    </form>
+
+                </td>
             </tr>
         {% else %}
             <tr>
-                <td colspan="3">Brak projektów.</td>
+                <td colspan="4">Brak projektów.</td>
             </tr>
         {% endfor %}
         </tbody>

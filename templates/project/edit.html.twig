@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edytuj projekt{% endblock %}
+
+{% block body %}
+    <h1>Edytuj projekt</h1>
+
+    {{ form_start(form) }}
+
+    {{ form_row(form.name) }}
+    {{ form_row(form.description) }}
+    {{ form_row(form.isActive) }}
+
+    <button type="submit">Zapisz zmiany</button>
+
+    {{ form_end(form) }}
+
+    <p>
+        <a href="{{ path('app_project_index') }}">Powrót do listy projektów</a>
+    </p>
+{% endblock %}

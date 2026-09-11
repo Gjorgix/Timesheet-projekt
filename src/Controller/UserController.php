@@ -107,4 +107,16 @@ final class UserController extends AbstractController
         return $this->redirectToRoute('app_user_index');
     }
 
+    #[Route('/admin/users/{id}/activate', name: 'app_user_activate')]
+    public function activate(
+        User $user,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $user->setIsActive(true);
+
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_user_index');
+    }
+
 }

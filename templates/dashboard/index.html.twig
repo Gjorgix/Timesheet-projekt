@@ -7,7 +7,11 @@
 
     <p>Zalogowano jako: {{ user.email }}</p>
 
+    {% if user.roles[0] == "ROLE_ADMIN" %}
+        <p><a href="{{path('app_admin')}}">Dashboard</a> </p>
+    {% endif %}
     <p>
+
         <a href="{{ path('app_logout') }}">Wyloguj</a>
     </p>
 {% endblock %}
