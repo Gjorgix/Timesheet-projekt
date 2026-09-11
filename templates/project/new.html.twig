@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dodaj projekt{% endblock %}
+
+{% block body %}
+    <h1>Dodaj projekt</h1>
+
+    {{ form_start(form) }}
+
+    {{ form_row(form.name) }}
+    {{ form_row(form.description) }}
+    {{ form_row(form.isActive) }}
+
+    <button type="submit">Zapisz projekt</button>
+
+    {{ form_end(form) }}
+
+    <p>
+        <a href="{{ path('app_project_index') }}">Powrót do listy projektów</a>
+    </p>
+{% endblock %}

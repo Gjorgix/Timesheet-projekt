@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Projekty{% endblock %}
+
+{% block body %}
+    <h1>Projekty</h1>
+
+    <p>
+        <a href="{{ path('app_admin') }}">Panel administratora</a>
+    </p>
+    <p>
+        <a href="{{ path('app_project_new') }}">Dodaj projekt</a>
+    </p>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Nazwa</th>
+            <th>Opis</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for project in projects %}
+            <tr>
+                <td>{{ project.name }}</td>
+                <td>{{ project.description }}</td>
+                <td>
+                    {% if project.isActive %}
+                        Aktywny
+                    {% else %}
+                        Nieaktywny
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3">Brak projektów.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
