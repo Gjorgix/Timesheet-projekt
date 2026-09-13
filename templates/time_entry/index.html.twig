@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Moje wpisy czasu{% endblock %}
+
+{% block body %}
+    <h1>Moje wpisy czasu</h1>
+
+    <p>
+        <a href="{{ path('app_time_entry_new') }}">Dodaj wpis</a>
+    </p>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Data</th>
+            <th>Koniec</th>
+            <th>Projekt</th>
+            <th>Czas trwania</th>
+            <th>Komentarz</th>
+            <th>Akcje</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for timeEntry in time_entries %}
+            <tr>
+                <td>{{ timeEntry.startAt|date('Y-m-d H:i') }}</td>
+                <td>{{ timeEntry.endAt|date('Y-m-d H:i') }}</td>
+                <td>{{ timeEntry.project.name }}</td>
+
+                <td>
+                    {% set seconds = timeEntry.endAt.timestamp - timeEntry.startAt.timestamp %}
+                    {% set hours = (seconds // 3600) %}
+                    {% set minutes = ((seconds % 3600) // 60) %}
+
+                    {{ '%02d:%02d'|format(hours, minutes) }}
+                </td>
+
+                <td>{{ timeEntry.comment }}</td>
+
+                <td>
+                    <a href="{{ path('app_time_entry_edit', {id: timeEntry.id}) }}">
+                        Edytuj
+                    </a>
+                    <form method="post" action="{{ path('app_time_entry_delete', {id: timeEntry.id}) }}" style="display: inline;">
+                        <button type="submit" onclick="return confirm('Czy na pewno chcesz usunąć ten wpis?')">
+                            Usuń
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">Brak wpisów.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <p>
+        <a href="{{ path('app_dashboard') }}">Dashboard</a>
+        |
+        <a href="{{ path('app_logout') }}">Wyloguj</a>
+    </p>
+{% endblock %}

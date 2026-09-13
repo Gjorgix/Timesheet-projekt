@@ -14,11 +14,11 @@ class TimeEntry
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTime $date = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTime $startAt = null;
 
-    #[ORM\Column]
-    private ?int $duration = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTime $endAt = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $comment = null;
@@ -31,33 +31,32 @@ class TimeEntry
     #[ORM\JoinColumn(nullable: false)]
     private ?Project $project = null;
 
+    public function getStartAt(): ?\DateTime
+    {
+        return $this->startAt;
+    }
+
+    public function setStartAt(\DateTime $startAt): static
+    {
+        $this->startAt = $startAt;
+
+        return $this;
+    }
+
+    public function getEndAt(): ?\DateTime
+    {
+        return $this->endAt;
+    }
+
+    public function setEndAt(\DateTime $endAt): static
+    {
+        $this->endAt = $endAt;
+
+        return $this;
+    }
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getDate(): ?\DateTime
-    {
-        return $this->date;
-    }
-
-    public function setDate(\DateTime $date): static
-    {
-        $this->date = $date;
-
-        return $this;
-    }
-
-    public function getDuration(): ?int
-    {
-        return $this->duration;
-    }
-
-    public function setDuration(int $duration): static
-    {
-        $this->duration = $duration;
-
-        return $this;
     }
 
     public function getComment(): ?string
@@ -94,5 +93,17 @@ class TimeEntry
         $this->project = $project;
 
         return $this;
+    }
+
+    public function getDurationInMinutes(): int
+    {
+        if ($this->startAt === null || $this->endAt === null) {
+            return 0;
+        }
+
+        return intdiv(
+            $this->endAt->getTimestamp() - $this->startAt->getTimestamp(),
+            60
+        );
     }
 }

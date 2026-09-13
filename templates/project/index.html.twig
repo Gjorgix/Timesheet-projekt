@@ -35,7 +35,6 @@
                     {% endif %}
                 </td>
                 <td>
-                    ID: {{ project.id }}
                     <a href="{{ path('app_project_edit', {id: project.id}) }}">Edytuj</a>
                     <form method="post"
                     {% if project.isActive %}

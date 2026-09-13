@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edytuj wpis czasu{% endblock %}
+
+{% block body %}
+    <h1>Edytuj wpis czasu</h1>
+
+    {{ form_start(form) }}
+
+    {{ form_row(form.project) }}
+    {{ form_row(form.startAt) }}
+    {{ form_row(form.endAt) }}
+    {{ form_row(form.comment) }}
+
+    <button type="submit">Zapisz zmiany</button>
+
+    {{ form_end(form) }}
+
+    <p>
+        <a href="{{ path('app_time_entry_index') }}">Powrót do wpisów</a>
+    </p>
+{% endblock %}
