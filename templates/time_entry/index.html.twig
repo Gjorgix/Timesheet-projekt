@@ -3,16 +3,24 @@
 {% block title %}Moje wpisy czasu{% endblock %}
 
 {% block body %}
-    <h1>Moje wpisy czasu</h1>
+    <h1>Wpisy czasu</h1>
 
     <p>
         <a href="{{ path('app_time_entry_new') }}">Dodaj wpis</a>
     </p>
 
+    {{ form_start(filter_form) }}
+        {{ form_row(filter_form.from) }}
+        {{ form_row(filter_form.to) }}
+        {{ form_row(filter_form.limit) }}
+
+        <button type="submit">Filtruj</button>
+    {{ form_end(filter_form) }}
+
     <table>
         <thead>
         <tr>
-            <th>Data</th>
+            <th>Start</th>
             <th>Koniec</th>
             <th>Projekt</th>
             <th>Czas trwania</th>
@@ -29,11 +37,11 @@
                 <td>{{ timeEntry.project.name }}</td>
 
                 <td>
-                    {% set seconds = timeEntry.endAt.timestamp - timeEntry.startAt.timestamp %}
-                    {% set hours = (seconds // 3600) %}
-                    {% set minutes = ((seconds % 3600) // 60) %}
+                    {% set minutes = timeEntry.durationInMinutes %}
+                    {% set hours = minutes // 60 %}
+                    {% set remainingMinutes = minutes % 60 %}
 
-                    {{ '%02d:%02d'|format(hours, minutes) }}
+                    {{ '%02d:%02d'|format(hours, remainingMinutes) }}
                 </td>
 
                 <td>{{ timeEntry.comment }}</td>
@@ -51,15 +59,57 @@
             </tr>
         {% else %}
             <tr>
-                <td colspan="5">Brak wpisów.</td>
+                <td colspan="6">Brak wpisów.</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
+
+    <h2>Podsumowanie czasu według projektu</h2>
+
+    {% if project_totals is empty %}
+        <p>Brak danych do podsumowania.</p>
+    {% else %}
+        <table>
+            <thead>
+            <tr>
+                <th>Projekt</th>
+                <th>Łączny czas</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% set totalMinutes = 0 %}
+
+            {% for projectName, minutes in project_totals %}
+                {% set totalMinutes = totalMinutes + minutes %}
+
+                {% set hours = minutes // 60 %}
+                {% set remainingMinutes = minutes % 60 %}
+
+                <tr>
+                    <td>{{ projectName }}</td>
+                    <td>{{ '%02d:%02d'|format(hours, remainingMinutes) }}</td>
+                </tr>
+            {% endfor %}
+
+            {% set totalHours = totalMinutes // 60 %}
+            {% set totalRemainingMinutes = totalMinutes % 60 %}
+
+            <tr>
+                <th>Razem</th>
+                <th>
+                    {{ '%02d:%02d'|format(totalHours, totalRemainingMinutes) }}
+                </th>
+            </tr>
+            </tbody>
+        </table>
+    {% endif %}
 
     <p>
         <a href="{{ path('app_dashboard') }}">Dashboard</a>
         |
         <a href="{{ path('app_logout') }}">Wyloguj</a>
     </p>
+
 {% endblock %}

@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-
+use App\Form\TimeEntryFilterType;
 #[IsGranted("ROLE_USER")]
 final class TimeEntryController extends AbstractController
 {
@@ -50,16 +50,56 @@ final class TimeEntryController extends AbstractController
     }
 
     #[Route('/time-entries', name: 'app_time_entry_index')]
-    public function index(EntityManagerInterface $entityManager): Response{
+    public function index(Request $request, EntityManagerInterface $entityManager): Response{
         $user = $this->getUser();
 
-        $timeEntries = $entityManager->getRepository(TimeEntry::class)->findBy(
-            ['employee' => $user],
-            ['startAt' => 'DESC']
-        );
+        $form = $this->createForm(TimeEntryFilterType::class);
+        $form->handleRequest($request);
+
+        $from = $form->get('from')->getData();
+        $to = $form->get('to')->getData();
+        $limit = $form->get('limit')->getData();
+
+        $queryBuilder = $entityManager
+            ->getRepository(TimeEntry::class)
+            ->createQueryBuilder('t')
+            ->where('t.employee = :employee'
+            )->setParameter('employee', $user)
+            ->orderBy('t.startAt', 'ASC');
+        if ($from != null){
+            $from->setTime(0,0,0);
+
+            $queryBuilder->andWhere('t.startAt >= :from')
+                ->setParameter('from', $from);
+        }
+        if ($to != null){
+            $to->setTime(23,59,59);
+
+            $queryBuilder->andWhere('t.endAt <= :to')
+                ->setParameter('to', $to);
+        }
+        if ($limit != null){
+            $queryBuilder->setMaxResults($limit);
+        }
+        $timeEntries = $queryBuilder->getQuery()->getResult();
+
+
+        $projectTotals = [];
+        foreach ($timeEntries as $timeEntry) {
+            $projectName = $timeEntry->getProject()->getName();
+            $duration = $timeEntry->getDurationInMinutes();
+
+            if (!isset($projectTotals[$projectName])) {
+                $projectTotals[$projectName] = 0;
+            }
+            $projectTotals[$projectName] += $duration;
+        }
+
 
         return $this->render('time_entry/index.html.twig', [
             'time_entries' => $timeEntries,
+            'filter_form' => $form,
+            'project_totals' => $projectTotals,
         ]);
     }
 
@@ -107,4 +147,6 @@ final class TimeEntryController extends AbstractController
 
         return $this->redirectToRoute('app_time_entry_index');
     }
+
+
 }

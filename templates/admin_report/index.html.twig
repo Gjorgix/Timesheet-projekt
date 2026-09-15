@@ -1,0 +1,113 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Raporty pracowników{% endblock %}
+
+{% block body %}
+    <h1>Raporty pracowników</h1>
+
+    {{ form_start(filter_form) }}
+
+    <label for="employee">Pracownik:</label>
+
+    <select name="employee" id="employee">
+        <option value="">-- wybierz pracownika --</option>
+
+        {% for employee in employees %}
+            <option value="{{ employee.id }}"
+                    {% if employee_id == employee.id %}selected{% endif %}>
+                {{ employee.firstName }} {{ employee.lastName }} ({{ employee.email }})
+            </option>
+        {% endfor %}
+    </select>
+
+    {{ form_row(filter_form.from) }}
+    {{ form_row(filter_form.to) }}
+    {{ form_row(filter_form.limit) }}
+
+    <button type="submit">Pokaż raport</button>
+
+    {{ form_end(filter_form) }}
+
+    {% if selected_employee %}
+        <h2>
+            Wpisy:
+            {{ selected_employee.firstName }}
+            {{ selected_employee.lastName }}
+        </h2>
+
+        {% if time_entries is empty %}
+            <p>Brak wpisów dla wybranego pracownika w podanym zakresie.</p>
+        {% else %}
+            <table>
+                <thead>
+                <tr>
+                    <th>Start</th>
+                    <th>Koniec</th>
+                    <th>Projekt</th>
+                    <th>Czas trwania</th>
+                    <th>Komentarz</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {% for timeEntry in time_entries %}
+                    <tr>
+                        <td>{{ timeEntry.startAt|date('Y-m-d H:i') }}</td>
+                        <td>{{ timeEntry.endAt|date('Y-m-d H:i') }}</td>
+                        <td>{{ timeEntry.project.name }}</td>
+                        <td>
+                            {% set minutes = timeEntry.durationInMinutes %}
+                            {% set hours = minutes // 60 %}
+                            {% set remainingMinutes = minutes % 60 %}
+
+                            {{ '%02d:%02d'|format(hours, remainingMinutes) }}
+                        </td>
+                        <td>{{ timeEntry.comment }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <h2>Podsumowanie czasu według projektu</h2>
+
+            <table>
+                <thead>
+                <tr>
+                    <th>Projekt</th>
+                    <th>Łączny czas</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {% set totalMinutes = 0 %}
+
+                {% for projectName, minutes in project_totals %}
+                    {% set totalMinutes = totalMinutes + minutes %}
+
+                    {% set hours = minutes // 60 %}
+                    {% set remainingMinutes = minutes % 60 %}
+
+                    <tr>
+                        <td>{{ projectName }}</td>
+                        <td>{{ '%02d:%02d'|format(hours, remainingMinutes) }}</td>
+                    </tr>
+                {% endfor %}
+
+                {% set totalHours = totalMinutes // 60 %}
+                {% set totalRemainingMinutes = totalMinutes % 60 %}
+
+                <tr>
+                    <th>Razem</th>
+                    <th>
+                        {{ '%02d:%02d'|format(totalHours, totalRemainingMinutes) }}
+                    </th>
+                </tr>
+                </tbody>
+            </table>
+
+        {% endif %}
+    {% endif %}
+
+    <p>
+        <a href="{{ path('app_dashboard') }}">Dashboard</a>
+    </p>
+{% endblock %}
