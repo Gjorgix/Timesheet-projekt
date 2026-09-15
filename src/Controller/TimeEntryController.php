@@ -21,22 +21,50 @@ final class TimeEntryController extends AbstractController
         $timeEntry = new TimeEntry();
 
         $now = new \DateTime();
-        $timeEntry->setStartAt($now);
-        $timeEntry->setEndAt($now);
 
         $form = $this->createForm(TimeEntryType::class, $timeEntry);
+
+        $form->get('startDate')->setData($now);
+        $form->get('startTime')->setData($now->format('H:i'));
+        $form->get('endDate')->setData($now);
+        $form->get('endTime')->setData($now->format('H:i'));
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $timeEntry->setEmployee($this->getUser());
+            $startDate = $form->get('startDate')->getData();
+            $startTime = $form->get('startTime')->getData();
 
-            $startAt = $form->get('startAt')->getData();
-            $endAt = $form->get('endAt')->getData();
-            if ($endAt <= $startAt) {
-                $form->get('endAt')->addError(
-                    new FormError('Data końca musi być późniejsza niż data rozpoczęcia.')
+            $endDate = $form->get('endDate')->getData();
+            $endTime = $form->get('endTime')->getData();
+
+            $startAt = \DateTime::createFromFormat(
+                'Y-m-d H:i',
+                $startDate->format('Y-m-d') . ' ' . $startTime
+            );
+
+            $endAt = \DateTime::createFromFormat(
+                'Y-m-d H:i',
+                $endDate->format('Y-m-d') . ' ' . $endTime
+            );
+
+            if ($startAt === false) {
+                $form->get('startTime')->addError(
+                    new FormError('Godzina musi być podana w formacie HH:MM.')
+                );
+            }elseif($endAt === false){
+                $form->get('endTime')->addError(
+                    new FormError('Godzina musi być podana w formacie HH:MM.')
+                );
+            }elseif ($endAt <= $startAt) {
+                $form->get('endTime')->addError(
+                    new FormError('Data i godzina końca musi być późniejsza niż rozpoczęcia.')
                 );
             } else {
+                $timeEntry->setStartAt($startAt);
+                $timeEntry->setEndAt($endAt);
+                $timeEntry->setEmployee($this->getUser());
+
                 $entityManager->persist($timeEntry);
                 $entityManager->flush();
 
@@ -114,14 +142,52 @@ final class TimeEntryController extends AbstractController
         }
 
         $form = $this->createForm(TimeEntryType::class, $timeEntry);
+
+        $form->get('startDate')->setData($timeEntry->getStartAt());
+        $form->get('startTime')->setData(
+            $timeEntry->getStartAt()->format('H:i')
+        );
+
+        $form->get('endDate')->setData($timeEntry->getEndAt());
+        $form->get('endTime')->setData(
+            $timeEntry->getEndAt()->format('H:i')
+        );
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $startAt = $form->get('startAt')->getData();
-            $endAt = $form->get('endAt')->getData();
-            if ($endAt <= $startAt) {
-                $form->get('endAt')->addError(new FormError('Data końca musi być po dacie zaczęcia'));
-            }else {
+            $startDate = $form->get('startDate')->getData();
+            $startTime = $form->get('startTime')->getData();
+
+            $endDate = $form->get('endDate')->getData();
+            $endTime = $form->get('endTime')->getData();
+
+            $startAt = \DateTime::createFromFormat(
+                'Y-m-d H:i',
+                $startDate->format('Y-m-d') . ' ' . $startTime
+            );
+
+            $endAt = \DateTime::createFromFormat(
+                'Y-m-d H:i',
+                $endDate->format('Y-m-d') . ' ' . $endTime
+            );
+
+            if ($startAt === false) {
+                $form->get('startTime')->addError(
+                    new FormError('Godzina musi być podana w formacie HH:MM.')
+                );
+            }elseif($endAt === false){
+                $form->get('endTime')->addError(
+                    new FormError('Godzina musi być podana w formacie HH:MM.')
+                );
+            }elseif ($endAt <= $startAt) {
+                $form->get('endTime')->addError(
+                    new FormError('Data i godzina końca musi być późniejsza niż rozpoczęcia.')
+                );
+            } else {
+                $timeEntry->setStartAt($startAt);
+                $timeEntry->setEndAt($endAt);
+
                 $entityManager->flush();
 
                 return $this->redirectToRoute('app_time_entry_index');

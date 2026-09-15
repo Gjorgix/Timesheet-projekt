@@ -18,12 +18,12 @@ class AppFixtures extends Fixture
     {
         $admin = new User();
         $admin->setEmail('admin@example.com');
-        $admin->setFirstName('Admin_imie');
-        $admin->setLastName('Admin_nazwisko');
+        $admin->setFirstName('Anna');
+        $admin->setLastName('Nowak');
         $admin->setRoles(['ROLE_ADMIN']);
         $admin->setIsActive(true);
         $admin->setPassword(
-            $this->passwordHasher->hashPassword($admin, 'Admin123')
+            $this->passwordHasher->hashPassword($admin, 'AnnaNowak');
         );
         $manager->persist($admin);
         $manager->flush();

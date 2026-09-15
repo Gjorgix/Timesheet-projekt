@@ -4,10 +4,10 @@ namespace App\Form;
 
 use App\Entity\Project;
 use App\Entity\TimeEntry;
-use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -27,13 +27,23 @@ class TimeEntryType extends AbstractType
                         ->orderBy('p.name', 'ASC');
                 },
             ])
-            ->add('startAt', DateTimeType::class, [
-                'label' => 'Data i godzina rozpoczęcia',
+            ->add('startDate', DateType::class, [
+                'label' => 'Data rozpoczęcia',
                 'widget' => 'single_text',
+                'mapped' => false,
             ])
-            ->add('endAt', DateTimeType::class, [
-                'label' => 'Data i godzina zakończenia',
+            ->add('startTime', TextType::class, [
+                'label' => 'Godzina rozpoczęcia (HH:MM)',
+                'mapped' => false,
+            ])
+            ->add('endDate', DateType::class, [
+                'label' => 'Data zakończenia',
                 'widget' => 'single_text',
+                'mapped' => false,
+            ])
+            ->add('endTime', TextType::class, [
+                'label' => 'Godzina zakończenia (HH:MM)',
+                'mapped' => false,
             ])
             ->add('comment')
 

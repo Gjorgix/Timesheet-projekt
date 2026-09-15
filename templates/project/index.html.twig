@@ -6,9 +6,6 @@
     <h1>Projekty</h1>
 
     <p>
-        <a href="{{ path('app_admin') }}">Panel administratora</a>
-    </p>
-    <p>
         <a href="{{ path('app_project_new') }}">Dodaj projekt</a>
     </p>
 
@@ -57,4 +54,7 @@
         {% endfor %}
         </tbody>
     </table>
+    <p>
+        <a href="{{ path('app_admin') }}">Panel administratora</a>
+    </p>
 {% endblock %}

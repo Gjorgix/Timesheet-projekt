@@ -4,6 +4,7 @@
 
 {% block body %}
     <h1>Użytkownicy</h1>
+
     <p>
         <a href="{{ path('app_user_new') }}">Dodaj użytkownika</a>
     </p>
@@ -60,11 +61,4 @@
         </tbody>
     </table>
 
-    <p>
-        <a href="{{ path('app_admin') }}">Panel administratora</a>
-        |
-        <a href="{{ path('app_dashboard') }}">Dashboard</a>
-        |
-        <a href="{{ path('app_logout') }}">Wyloguj</a>
-    </p>
 {% endblock %}

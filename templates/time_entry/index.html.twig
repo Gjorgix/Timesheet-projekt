@@ -1,9 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Moje wpisy czasu{% endblock %}
+{% block title %}Moje wpisy {% endblock %}
 
 {% block body %}
-    <h1>Wpisy czasu</h1>
+    <h1>Wpisy </h1>
 
     <p>
         <a href="{{ path('app_time_entry_new') }}">Dodaj wpis</a>
@@ -108,8 +108,6 @@
 
     <p>
         <a href="{{ path('app_dashboard') }}">Dashboard</a>
-        |
-        <a href="{{ path('app_logout') }}">Wyloguj</a>
     </p>
 
 {% endblock %}
