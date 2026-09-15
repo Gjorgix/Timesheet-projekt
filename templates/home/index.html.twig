@@ -6,7 +6,7 @@
 {% block body %}
     <h1>Strona główna</h1>
 
-    <p>System ewidencji czasu pracy.</p>
+    <p>System zarządzania czasem pracy.</p>
 
     {% if app.user %}
         <p>
@@ -14,7 +14,7 @@
         </p>
     {% else %}
         <p>
-            Zaloguj się, aby korzystać z systemu.
+            <a href="{{ path('app_login') }}">Zaloguj się</a>, aby korzystać z systemu.
         </p>
     {% endif %}
 {% endblock %}

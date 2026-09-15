@@ -38,7 +38,12 @@
             <a href="{{ path('app_login') }}">Zaloguj się</a>
         {% endif %}
     </nav>
-
+    {% if app.user %}
+        Zalogowano jako: {{ app.user.firstName }} {{ app.user.lastName }}
+        {% if is_granted('ROLE_ADMIN') %}
+             (Admin)
+        {% endif %}
+    {% endif %}
     <hr>
 
     {% block body %}{% endblock %}
