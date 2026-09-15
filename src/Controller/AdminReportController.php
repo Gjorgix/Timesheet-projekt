@@ -37,7 +37,7 @@ class AdminReportController extends AbstractController
 
         $selectedEmployee = null;
 
-        if ($employeeId !== null) {
+        if ($employeeId !== null && $employeeId !== '') {
             $selectedEmployee = $userRepository->find($employeeId);
         }
 

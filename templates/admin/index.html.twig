@@ -8,13 +8,22 @@
     <p>Witaj w panelu administracyjnym.</p>
 
     <ul>
-        <li><a href="{{ path('app_user_index') }}">Zarządzanie użytkownikami</a></li>
-        <li><a href="{{ path('app_project_index') }}">Zarządzanie projektami</a></li>
-    </ul>
+        <li>
+            <a href="{{ path('app_user_index') }}">
+                Zarządzanie użytkownikami
+            </a>
+        </li>
 
-    <p>
-        <a href="{{ path('app_dashboard') }}">Dashboard</a>
-        |
-        <a href="{{ path('app_logout') }}">Wyloguj</a>
-    </p>
+        <li>
+            <a href="{{ path('app_project_index') }}">
+                Zarządzanie projektami
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ path('app_admin_report') }}">
+                Raporty pracowników
+            </a>
+        </li>
+    </ul>
 {% endblock %}

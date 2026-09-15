@@ -1,0 +1,21 @@
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Timesheet{% endblock %}
+
+{% block body %}
+    <h1>Timesheet</h1>
+
+    <p>System ewidencji czasu pracy.</p>
+
+    {% if app.user %}
+        <p>
+            Witaj, {{ app.user.firstName }}!
+        </p>
+    {% else %}
+        <p>
+            Zaloguj się, aby korzystać z systemu.
+        </p>
+    {% endif %}
+{% endblock %}
+

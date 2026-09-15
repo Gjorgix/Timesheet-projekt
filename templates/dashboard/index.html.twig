@@ -7,12 +7,13 @@
 
     <p>Zalogowano jako: {{ user.email }}</p>
 
-    <p><a href="{{ path('app_time_entry_index')}}">Wpisy</a></p>
-
-    {% if user.roles[0] == "ROLE_ADMIN" %}
-        <p><a href="{{path('app_admin')}}">Dashboard admina</a> </p>
-    {% endif %}
     <p>
-        <a href="{{ path('app_logout') }}">Wyloguj</a>
+        <a href="{{ path('app_time_entry_index') }}">Moje wpisy czasu</a>
     </p>
+
+    {% if is_granted('ROLE_ADMIN') %}
+        <p>
+            <a href="{{ path('app_admin') }}">Panel administratora</a>
+        </p>
+    {% endif %}
 {% endblock %}
