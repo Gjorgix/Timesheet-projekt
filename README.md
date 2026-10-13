@@ -2,7 +2,7 @@
 
 Przed rozpoczęciem instalacji należy zainstalować:
 
-* PHP 8.2 
+* PHP 8.4 
 * Composer
 * PostgreSQL
 * Git
