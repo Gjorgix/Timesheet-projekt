@@ -48,6 +48,11 @@ abstract class BaseEntity
 
         return $this;
     }
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;;
+        return $this;
+    }
 
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
@@ -63,6 +68,11 @@ abstract class BaseEntity
     {
         $this->updatedBy = $updatedBy;
 
+        return $this;
+    }
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;;
         return $this;
     }
 
