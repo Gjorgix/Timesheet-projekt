@@ -4,7 +4,6 @@ namespace App\Entity;
 
 
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 
 #[ORM\MappedSuperclass]
 abstract class BaseEntity
@@ -15,21 +14,17 @@ abstract class BaseEntity
     protected ?int $id = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    #[Gedmo\Timestampable(on: 'create')]
     protected ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: true)]
-    #[Gedmo\Blameable(on: 'create')]
     protected ?User $createdBy = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    #[Gedmo\Timestampable(on: 'update')]
     protected ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: true)]
-    #[Gedmo\Blameable(on: 'update')]
     protected ?User $updatedBy = null;
 
     public function getId(): ?int
