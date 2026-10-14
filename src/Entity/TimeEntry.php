@@ -7,12 +7,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TimeEntryRepository::class)]
-class TimeEntry
+class TimeEntry extends BaseEntity
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTime $startAt = null;
@@ -54,11 +50,6 @@ class TimeEntry
 
         return $this;
     }
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
     public function getComment(): ?string
     {
         return $this->comment;

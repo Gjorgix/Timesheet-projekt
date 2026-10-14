@@ -12,13 +12,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User extends BaseEntity implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\Column(length: 180)]
     private ?string $email = null;
 
@@ -52,11 +47,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct()
     {
         $this->timeEntries = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     public function getEmail(): ?string
@@ -186,7 +176,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeTimeEntry(TimeEntry $timeEntry): static
     {
         if ($this->timeEntries->removeElement($timeEntry)) {
-            // set the owning side to null (unless already changed)
+
             if ($timeEntry->getEmployee() === $this) {
                 $timeEntry->setEmployee(null);
             }
