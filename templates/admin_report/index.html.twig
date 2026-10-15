@@ -5,29 +5,22 @@
 {% block body %}
     {{ dump(selected_employee) }}
     {{ dump(debug_employee) }}
+    {{ dump(method) }}
     <h1>Raporty pracowników</h1>
 
-    <form method="POST"  action="{{ path('app_admin_report') }}">
+    <form method="POST" action="{{ path('app_admin_report') }}">
+        <input type="hidden" name="test" value="formularz_dziala">
 
-    <label for="employee">Pracownik:</label>
+        <label for="employee">Pracownik:</label>
+        <select name="employee" id="employee">
+            {% for employee in employees %}
+                <option value="{{ employee.id }}">
+                    {{ employee.firstName }} {{ employee.lastName }}
+                </option>
+            {% endfor %}
+        </select>
 
-    <select name="employee" id="employee">
-        <option value="">-- wybierz pracownika --</option>
-
-        {% for employee in employees %}
-            <option value="{{ employee.id }}"
-                    {% if employee_id == employee.id %}selected{% endif %}>
-                {{ employee.firstName }} {{ employee.lastName }} ({{ employee.email }})
-            </option>
-        {% endfor %}
-    </select>
-
-    <div><label for="from">Data od</label><input type="date" id="from" name="from" /></div>
-    <div><label for="to">Data do</label><input type="date" id="to" name="to" /></div>
-    <div><label for="limit">Ilość wpisów</label><input type="number" id="limit" name="limit" /></div>
-
-    <button type="submit">Pokaż raport</button>
-
+        <button type="submit">Test POST</button>
     </form>
 
     {% if selected_employee %}

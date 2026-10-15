@@ -27,7 +27,6 @@ class AdminReportModel
         $limit = '';
 
         if ($request->isMethod('POST')) {
-
             $employeeId = $request->request->get('employee', '');
 
             $from = $request->request->get('from', '');

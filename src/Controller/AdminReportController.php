@@ -21,9 +21,8 @@ class AdminReportController extends AbstractController
         AdminReportModel $adminReportModel
     ): Response {
 
-
         $dataArray = $adminReportModel->generateReport($request, $userRepository, $entityManager);
 
-        return $this->render('admin_report/index.html.twig', $dataArray);
+        return $this->render('admin_report/index.html.twig', ["method"=>$request->getMethod(),"selected_employee"=>$dataArray["selected_employee"], "debug_employee"=>$dataArray["debug_employee"],"employees"=>$dataArray["employees"], "employee_id"=>$dataArray["employee_id"],"time_entries"=>$dataArray["time_entries"],"project_totals"=>$dataArray["project_totals"]]);
     }
 }
