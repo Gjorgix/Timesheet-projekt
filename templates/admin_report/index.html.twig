@@ -3,9 +3,11 @@
 {% block title %}Raporty pracowników{% endblock %}
 
 {% block body %}
+    {{ dump(selected_employee) }}
+    {{ dump(debug_employee) }}
     <h1>Raporty pracowników</h1>
 
-    {{ form_start(filter_form) }}
+    <form method="POST"  action="{{ path('app_admin_report') }}">
 
     <label for="employee">Pracownik:</label>
 
@@ -20,15 +22,16 @@
         {% endfor %}
     </select>
 
-    {{ form_row(filter_form.from) }}
-    {{ form_row(filter_form.to) }}
-    {{ form_row(filter_form.limit) }}
+    <div><label for="from">Data od</label><input type="date" id="from" name="from" /></div>
+    <div><label for="to">Data do</label><input type="date" id="to" name="to" /></div>
+    <div><label for="limit">Ilość wpisów</label><input type="number" id="limit" name="limit" /></div>
 
     <button type="submit">Pokaż raport</button>
 
-    {{ form_end(filter_form) }}
+    </form>
 
     {% if selected_employee %}
+
         <h2>
             Wpisy:
             {{ selected_employee.firstName }}
