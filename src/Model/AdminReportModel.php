@@ -3,57 +3,41 @@
 namespace App\Model;
 
 use App\Entity\TimeEntry;
+use App\Entity\User;
 use App\Form\TimeEntryFilterType;
 use App\Repository\UserRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
-class AdminReportModel
+class AdminReportModel extends BaseModel
 {
-    public function generateReport(
-        Request $request,
-        UserRepository $userRepository,
-        EntityManagerInterface $entityManager)
+    public function getDataToReport(): array {
+        $employeesList = $this->getEm()->getRepository(User::class)->findBy(['isActive' => true], ['lastName' => 'ASC', 'firstName' => 'ASC']);
+
+        return [
+            'employeesList' => $employeesList,
+        ];
+    }
+
+    public function generateReport(ParameterBag $data): array
     {
-        $employees = $userRepository->findBy(
-            ['isActive' => true],
-            ['lastName' => 'ASC', 'firstName' => 'ASC']
-        );
+        $employeeId = $data->getInt('employee_id');
+        $from = $data->get("from");
+        $to = $data->get("to");
+        $limit = $data->get("limit");
 
-        $employeeId = '';
-        $from = '';
-        $to = '';
-        $limit = '';
+        $selectedEmployee = $this->getEm()->getRepository(User::class)->find($employeeId);
 
-        if ($request->isMethod('POST')) {
-            $employeeId = $request->request->get('employee', '');
-
-            $from = $request->request->get('from', '');
-            $to = $request->request->get('to', '');
-            $limit = $request->request->get('limit', '');
-        }
-
-        $selectedEmployee = null;
-
-        if ($employeeId !== "") {
-            $selectedEmployee = $userRepository->find($employeeId);
-        }
-
-        $timeEntries = [];
-
-        if ($request->isMethod('POST') && $selectedEmployee !== null) {
-
-
-
-            $queryBuilder = $entityManager
+        $queryBuilder = $this->getEm()
                 ->getRepository(TimeEntry::class)
                 ->createQueryBuilder('t')
                 ->where('t.employee = :employee')
                 ->setParameter('employee', $selectedEmployee)
                 ->orderBy('t.startAt', 'ASC');
 
-            if ($from !== "") {
+            if ($from) {
                 $from = DateTime::createFromFormat('Y-m-d',$from)->setTime(0, 0, 0);
 
                 $queryBuilder
@@ -61,7 +45,7 @@ class AdminReportModel
                     ->setParameter('from', $from);
             }
 
-            if ($to !== "") {
+            if ($to) {
                 $to = DateTime::createFromFormat('Y-m-d',$to)->setTime(23, 59, 59);
 
                 $queryBuilder
@@ -69,17 +53,14 @@ class AdminReportModel
                     ->setParameter('to', $to);
             }
 
-            if ($limit !== "") {
+            if ($limit) {
                 $queryBuilder
                     ->setMaxResults($limit);
             }
 
-            $timeEntries = $queryBuilder
-                ->getQuery()
-                ->getResult();
-            dump(count($timeEntries));
-            dump($timeEntries);
-        }
+        $timeEntries = $queryBuilder
+            ->getQuery()
+            ->getResult();
 
         $projectTotals = [];
 
@@ -95,12 +76,28 @@ class AdminReportModel
         }
 
         return [
-            'employees' => $employees,
-            'employee_id' => $employeeId,
-            'selected_employee' => $selectedEmployee,
-            'debug_employee' => $selectedEmployee,
-            'time_entries' => $timeEntries,
-            'project_totals' => $projectTotals,
+
+            'selected_employee' => [
+                'employee_id' => $employeeId,
+                'firstName' => $selectedEmployee->getFirstName(),
+                'lastName' => $selectedEmployee->getLastName(),
+            ],
+            'time_entries' => array_map(fn (TimeEntry $entry) => [
+                'start_at' => $entry->getStartAt()?->format('Y-m-d H:i:s'),
+                'end_at' => $entry->getEndAt()?->format('Y-m-d H:i:s'),
+                'project' => $entry->getProject()->getName(),
+                'duration' => $entry->getDurationInMinutes(),
+                'comment' => $entry->getComment(),
+            ], $timeEntries),
+            'project_totals' => array_map(
+                static fn (string $project, int $minutes) => [
+                    'project' => $project,
+                    'minutes' => $minutes,
+                ],
+                array_keys($projectTotals),
+                array_values($projectTotals),
+            ),
         ];
     }
+
 }

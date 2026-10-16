@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Raporty pracowników{% endblock %}
+
+ {% block javascripts %}
+     {{ parent() }}
+     <script src="{{ asset('js/admin/report.js') }}" type="module"></script>
+{% endblock %}
+
+{% block body %}
+    <h1>Raporty pracowników</h1>
+
+    <form id="generate-raport" method="POST" action="#"  data-turbo="false">
+        <label for="employee_id">Pracownik:</label>
+        <select name="employee_id" id="employee_id">
+            {% for employee in employeesList %}
+                <option value="{{ employee.id }}">
+                    {{ employee.firstName }} {{ employee.lastName }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <div><label for="from">Data od</label><input type="date" id="from" name="from" /></div>
+        <div><label for="to">Data do</label><input type="date" id="to" name="to" /></div>
+        <div><label for="limit">Ilość wpisów</label><input type="number" id="limit" name="limit" /></div>
+
+        <button name="generate-report-btn" type="submit" >Generuj Raport</button>
+    </form>
+
+    <div id="report-container"></div>
+
+    <p>
+        <a href="{{ path('app_admin') }}">Panel administratora</a>
+    </p>
+
+    <script>
+        let path_app_admin_report_ajax = '{{ path('app_admin_report_ajax') }}';
+    </script>
+{% endblock %}
