@@ -2,6 +2,11 @@
 
 {% block title %}Moje wpisy {% endblock %}
 
+ {% block javascripts %}
+     {{ parent() }}
+     <script src="{{ asset('js/time_entries/index.js') }}" type="module"></script>
+ {% endblock %}
+
 {% block body %}
     <h1>Wpisy </h1>
 
@@ -9,102 +14,20 @@
         <a href="{{ path('app_time_entry_new') }}">Dodaj wpis</a>
     </p>
 
-    {{ form_start(filter_form) }}
-        {{ form_row(filter_form.from) }}
-        {{ form_row(filter_form.to) }}
-        {{ form_row(filter_form.limit) }}
+    <form id="filter-form" method="POST" action="#"  data-turbo="false">
 
-        <button type="submit">Filtruj</button>
-    {{ form_end(filter_form) }}
+        <div><label for="from">Data od</label><input type="date" id="from" name="from" /></div>
+        <div><label for="to">Data do</label><input type="date" id="to" name="to" /></div>
+        <div><label for="limit">Ilość wpisów</label><input type="number" id="limit" name="limit" /></div>
 
-    <table>
-        <thead>
-        <tr>
-            <th>Start</th>
-            <th>Koniec</th>
-            <th>Projekt</th>
-            <th>Czas trwania</th>
-            <th>Komentarz</th>
-            <th>Akcje</th>
-        </tr>
-        </thead>
+        <button name="filter-form-btn" type="submit" >Filtruj</button>
+    </form>
 
-        <tbody>
-        {% for timeEntry in time_entries %}
-            <tr>
-                <td>{{ timeEntry.startAt|date('Y-m-d H:i') }}</td>
-                <td>{{ timeEntry.endAt|date('Y-m-d H:i') }}</td>
-                <td>{{ timeEntry.project.name }}</td>
+    <div id="result-container"
+         data-ajax-url="{{ path('app_time_entry_index_ajax') }}"
+         data-edit-url-template="{{ path('app_time_entry_edit', {id: 'ID'}) }}">
+    </div>
 
-                <td>
-                    {% set minutes = timeEntry.durationInMinutes %}
-                    {% set hours = minutes // 60 %}
-                    {% set remainingMinutes = minutes % 60 %}
-
-                    {{ '%02d:%02d'|format(hours, remainingMinutes) }}
-                </td>
-
-                <td>{{ timeEntry.comment }}</td>
-
-                <td>
-                    <a href="{{ path('app_time_entry_edit', {id: timeEntry.id}) }}">
-                        Edytuj
-                    </a>
-                    <form method="post" action="{{ path('app_time_entry_delete', {id: timeEntry.id}) }}" style="display: inline;">
-                        <button type="submit" onclick="return confirm('Czy na pewno chcesz usunąć ten wpis?')">
-                            Usuń
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="6">Brak wpisów.</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <h2>Podsumowanie czasu według projektu</h2>
-
-    {% if project_totals is empty %}
-        <p>Brak danych do podsumowania.</p>
-    {% else %}
-        <table>
-            <thead>
-            <tr>
-                <th>Projekt</th>
-                <th>Łączny czas</th>
-            </tr>
-            </thead>
-
-            <tbody>
-            {% set totalMinutes = 0 %}
-
-            {% for projectName, minutes in project_totals %}
-                {% set totalMinutes = totalMinutes + minutes %}
-
-                {% set hours = minutes // 60 %}
-                {% set remainingMinutes = minutes % 60 %}
-
-                <tr>
-                    <td>{{ projectName }}</td>
-                    <td>{{ '%02d:%02d'|format(hours, remainingMinutes) }}</td>
-                </tr>
-            {% endfor %}
-
-            {% set totalHours = totalMinutes // 60 %}
-            {% set totalRemainingMinutes = totalMinutes % 60 %}
-
-            <tr>
-                <th>Razem</th>
-                <th>
-                    {{ '%02d:%02d'|format(totalHours, totalRemainingMinutes) }}
-                </th>
-            </tr>
-            </tbody>
-        </table>
-    {% endif %}
 
     <p>
         <a href="{{ path('app_dashboard') }}">Dashboard</a>

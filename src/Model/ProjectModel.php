@@ -21,7 +21,7 @@ class ProjectModel extends BaseModel
         $project_new = new Project();
         $project_new->setName($data->get('project_name'));
         $project_new->setDescription($data->get('project_description'));
-        $project_new->setIsActive($data->get('project_isActive'));
+        $project_new->setIsActive($data->has('project_isActive'));
 
         $this->getEm()->persist($project_new);
         $this->getEm()->flush();

@@ -10,7 +10,7 @@
         <div><label for="project_name" class="required">Name</label><input type="text" id="project_name" name="project_name"  required="required" maxlength="255" value="{{ project.name() }}"/></div>
         <div><label for="project_description">Description</label><textarea id="project_description" name="project_description"  >{{ project.description() }}</textarea></div>
 
-        <div><label for="project_isActive">Is active</label><input type="checkbox" id="project_isActive" name="project_isActive" value="1" checked="{{ project.isActive() }}"/></div>
+        <div><label for="project_isActive">Is active</label><input type="checkbox" id="project_isActive" name="project_isActive" value="1" {% if project.isActive() %}checked="checked"{% endif %}"/></div>
 
         <button type="submit">Zapisz zmiany</button>
     </form>

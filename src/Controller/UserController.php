@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserType;
+use App\Model\UserModel;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,107 +17,49 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 #[IsGranted('ROLE_ADMIN')]
 final class UserController extends AbstractController
 {
-    #[Route('/admin/users', name: 'app_user_index')]
-    public function index(UserRepository $userRepository): Response
+    #[Route('/users', name: 'app_user_list')]
+    public function list(UserModel $userModel): Response
     {
-        $users = $userRepository->findAll();
+        $data = $userModel->getUserList();
 
-        return $this->render('user/index.html.twig', [
-            'users' => $users,
-        ]);
+        return $this->render('user/index.html.twig',$data);
     }
 
-    #[Route('/admin/users/new', name: 'app_user_new')]
-    public function new(
-        Request $request,
-        UserPasswordHasherInterface $passwordHasher,
-        EntityManagerInterface $entityManager
-    ): Response
+    #[Route('/users/new', name: 'app_user_new')]
+    public function new(): Response
     {
-        $user = new User();
+        return $this->render('user/new.html.twig');
+    }
+    #[Route('/users/new/create', name: 'app_user_new_create', methods: ['POST'])]
+    public function newCreate(Request $request, UserModel $userModel, UserPasswordHasherInterface $passwordHasher): Response
+    {
+        $userModel->newUser($request->request, $passwordHasher);
 
-        $form = $this->createForm(UserType::class, $user);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $role = $form->get('role')->getData();
-            $plainPassword = $form->get('plainPassword')->getData();
-
-            $user->setRoles([$role]);
-            $user->setPassword(
-                $passwordHasher->hashPassword($user, $plainPassword)
-            );
-
-            $entityManager->persist($user);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_user_index');
-        }
-
-        return $this->render('user/new.html.twig', [
-            'form' => $form,
-        ]);
+        return $this->redirectToRoute('app_user_list');
     }
 
-    #[Route('/admin/users/{id}/edit', name: 'app_user_edit')]
-    public function edit(
-        User $user,
-        Request $request,
-        UserPasswordHasherInterface $passwordHasher,
-        EntityManagerInterface $entityManager
-    ): Response {
-        $form = $this->createForm(UserType::class, $user, [
-            'is_edit' => true,
-            'role' => $user->getRoles()[0] ?? 'ROLE_USER',
-        ]);
+    #[Route('/users/{id}/edit', name: 'app_user_edit')]
+    public function edit(User $user): Response {
 
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $role = $form->get('role')->getData();
-            $plainPassword = $form->get('plainPassword')->getData();
-
-            $user->setRoles([$role]);
-
-            if ($plainPassword) {
-                $user->setPassword(
-                    $passwordHasher->hashPassword($user, $plainPassword)
-                );
-            }
-
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_user_index');
-        }
-
-        return $this->render('user/edit.html.twig', [
-            'form' => $form,
-            'user' => $user,
-        ]);
+        return $this->render('user/edit.html.twig', ['user' => $user,]);
     }
 
-    #[Route('/admin/users/{id}/deactivate', name: 'app_user_deactivate')]
-    public function deactivate(
-        User $user,
-        EntityManagerInterface $entityManager
-    ): Response {
-        $user->setIsActive(false);
-
-        $entityManager->flush();
-
-        return $this->redirectToRoute('app_user_index');
+    #[Route('/users/{id}/edit/update', name: 'app_user_edit_update')]
+    public function editUpdate(User $user,UserModel $userModel, Request $request, UserPasswordHasherInterface $passwordHasher,): Response {
+        $userModel->editUser($user, $request->request, $passwordHasher);
+        return $this->redirectToRoute('app_user_list');
     }
 
-    #[Route('/admin/users/{id}/activate', name: 'app_user_activate')]
-    public function activate(
-        User $user,
-        EntityManagerInterface $entityManager
-    ): Response {
-        $user->setIsActive(true);
+    #[Route('/users/{id}/deactivate', name: 'app_user_deactivate')]
+    public function deactivate(User $user, UserModel $userModel): Response {
+        $userModel->deactivateUser($user);
+        return $this->redirectToRoute('app_user_list');
+    }
 
-        $entityManager->flush();
-
-        return $this->redirectToRoute('app_user_index');
+    #[Route('/users/{id}/activate', name: 'app_user_activate')]
+    public function activate(User $user, UserModel $userModel): Response {
+        $userModel->activateUser($user);
+        return $this->redirectToRoute('app_user_list');
     }
 
 }

@@ -5,20 +5,20 @@
 {% block body %}
     <h1>Dodaj użytkownika</h1>
 
-    {{ form_start(form) }}
+    <form name="user" method="post" action="{{ path('app_user_new_create') }}" data-turbo="false">
 
-    {{ form_row(form.email) }}
-    {{ form_row(form.firstName) }}
-    {{ form_row(form.lastName) }}
-    {{ form_row(form.role) }}
-    {{ form_row(form.plainPassword) }}
-    {{ form_row(form.isActive) }}
+        <div><label for="user_email" class="required">Email</label><input type="text" id="user_email" name="user_email" required="required" maxlength="180" /></div>
+        <div><label for="user_firstName" class="required">First name</label><input type="text" id="user_firstName" name="user_firstName" required="required" maxlength="100" /></div>
+        <div><label for="user_lastName" class="required">Last name</label><input type="text" id="user_lastName" name="user_lastName" required="required" maxlength="100" /></div>
+        <div><label for="user_role" class="required">Role</label><select id="user_role" name="user_role"><option value="ROLE_USER" selected="selected">Pracownik</option><option value="ROLE_ADMIN">Administrator</option></select></div>
+        <div><label for="user_plainPassword" class="required">Plain password</label><input type="password" id="user_plainPassword" name="user_plainPassword" required="required" /></div>
+        <div><label for="user_isActive">Is active</label><input type="checkbox" id="user_isActive" name="user_isActive" value="1" /></div>
 
-    <button type="submit">Zapisz użytkownika</button>
+        <button type="submit">Zapisz użytkownika</button>
 
-    {{ form_end(form) }}
+    </form>
 
     <p>
-        <a href="{{ path('app_user_index') }}">Powrót do listy użytkowników</a>
+        <a href="{{ path('app_user_list') }}">Powrót do listy użytkowników</a>
     </p>
 {% endblock %}
