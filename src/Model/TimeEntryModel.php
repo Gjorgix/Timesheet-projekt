@@ -92,61 +92,99 @@ class TimeEntryModel extends BaseModel
         return ['projects' => $projects,
             'time_entry' => $timeEntry];
     }
-    public function editTimeEntry(ParameterBag $data, TimeEntry $timeEntry){
 
-        $timeEntry.setStartAt();
+    public function getNewData(): array
+    {
+        return [
+            'projects' => $this->getEm()->getRepository(Project::class)->findBy(
+                ['isActive' => true],
+                ['name' => 'ASC'],
+            ),
+        ];
+    }
 
-        $form = $this->createForm(TimeEntryType::class, $timeEntry);
-
-        $form->get('startDate')->setData($timeEntry->getStartAt());
-        $form->get('startTime')->setData(
-            $timeEntry->getStartAt()->format('H:i')
+    public function newTimeEntry(ParameterBag $data, UserInterface $user): bool
+    {
+        $startAt = $this->createDateTime(
+            $data->get('time_entryStartDate'),
+            $data->get('time_entryStartTime'),
+        );
+        $endAt = $this->createDateTime(
+            $data->get('time_entryEndDate'),
+            $data->get('time_entryEndTime'),
         );
 
-        $form->get('endDate')->setData($timeEntry->getEndAt());
-        $form->get('endTime')->setData(
-            $timeEntry->getEndAt()->format('H:i')
-        );
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $startDate = $form->get('startDate')->getData();
-            $startTime = $form->get('startTime')->getData();
-
-            $endDate = $form->get('endDate')->getData();
-            $endTime = $form->get('endTime')->getData();
-
-            $startAt = \DateTime::createFromFormat(
-                'Y-m-d H:i',
-                $startDate->format('Y-m-d') . ' ' . $startTime
-            );
-
-            $endAt = \DateTime::createFromFormat(
-                'Y-m-d H:i',
-                $endDate->format('Y-m-d') . ' ' . $endTime
-            );
-
-            if ($startAt === false) {
-                $form->get('startTime')->addError(
-                    new FormError('Godzina musi być podana w formacie HH:MM.')
-                );
-            }elseif($endAt === false){
-                $form->get('endTime')->addError(
-                    new FormError('Godzina musi być podana w formacie HH:MM.')
-                );
-            }elseif ($endAt <= $startAt) {
-                $form->get('endTime')->addError(
-                    new FormError('Data i godzina końca musi być późniejsza niż rozpoczęcia.')
-                );
-            } else {
-                $timeEntry->setStartAt($startAt);
-                $timeEntry->setEndAt($endAt);
-
-                $entityManager->flush();
-
-                return $this->redirectToRoute('app_time_entry_index');
-            }
+        if ($endAt <= $startAt) {
+            return false;
         }
+
+        $project = $this->getEm()
+            ->getRepository(Project::class)
+            ->find($data->get('time_entryProject'));
+
+        if (!$project instanceof Project || !$project->isActive()) {
+            throw new \InvalidArgumentException('Projekt nie istnieje lub jest nieaktywny');
+        }
+
+        $timeEntry = new TimeEntry();
+        $timeEntry->setProject($project);
+        $timeEntry->setEmployee($user);
+        $timeEntry->setStartAt($startAt);
+        $timeEntry->setEndAt($endAt);
+        $timeEntry->setComment($data->get('time_entryComment'));
+
+        $this->getEm()->persist($timeEntry);
+        $this->getEm()->flush();
+
+        return true;
+    }
+
+    public function editTimeEntry(ParameterBag $data, TimeEntry $timeEntry): bool
+    {
+        $startAt = $this->createDateTime(
+            $data->get('time_entryStartDate'),
+            $data->get('time_entryStartTime'),
+        );
+        $endAt = $this->createDateTime(
+            $data->get('time_entryEndDate'),
+            $data->get('time_entryEndTime'),
+        );
+
+        if ($endAt <= $startAt) {
+            return false;
+        }
+
+        $project = $this->getEm()
+            ->getRepository(Project::class)
+            ->find($data->get('time_entryProject'));
+
+        if (!$project instanceof Project) {
+            throw new \InvalidArgumentException('Projekt nie istnieje');
+        }
+
+        $timeEntry->setProject($project);
+        $timeEntry->setStartAt($startAt);
+        $timeEntry->setEndAt($endAt);
+        $timeEntry->setComment($data->get('time_entryComment'));
+
+        $this->getEm()->flush();
+
+        return true;
+    }
+
+    private function createDateTime(mixed $date, mixed $time): DateTime
+    {
+        if (!is_string($date) || !is_string($time)) {
+            throw new \InvalidArgumentException('Niepoprawny format daty');
+        }
+
+        $dateTime = DateTime::createFromFormat('!Y-m-d H:i', $date . ' ' . $time);
+        $errors = DateTime::getLastErrors();
+
+        if ($dateTime === false || ($errors !== false && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))) {
+            throw new \InvalidArgumentException('Niepoprawny format daty');
+        }
+
+        return $dateTime;
     }
 }

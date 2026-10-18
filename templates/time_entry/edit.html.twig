@@ -5,6 +5,10 @@
 {% block body %}
     <h1>Edytuj wpis czasu</h1>
 
+    {% for message in app.flashes('error') %}
+        <p>{{ message }}</p>
+    {% endfor %}
+
     <form name="time_entry" method="post" action="{{ path('app_time_entry_edit_update', {id: time_entry.id}) }}">
 
     <div>
@@ -15,9 +19,9 @@
             {% endfor %}
         </select>
     </div>
-    <div><label for="time_entry_startDate" class="required">Data rozpoczęcia</label><input type="date" id="time_entry_startDate" name="time_entryStartDate" required="required" value="{{ time_entry.startAt|date('Y-m-d') }}" /></div>
+    <div><label for="time_entry_startDate" class="required">Data rozpoczęcia</label><input type="date" id="time_entry_startDate" name="time_entryStartDate" max="{{ time_entry.endAt|date('Y-m-d') }}" required="required" value="{{ time_entry.startAt|date('Y-m-d') }}" /></div>
     <div><label for="time_entry_startTime" class="required">Godzina rozpoczęcia (HH:MM)</label><input type="text" id="time_entry_startTime" name="time_entryStartTime" required="required" value="{{ time_entry.startAt|date('H:i') }}" /></div>
-    <div><label for="time_entry_endDate" class="required">Data zakończenia</label><input type="date" id="time_entry_endDate" name="time_entryEndDate" required="required" value="{{ time_entry.endAt|date('Y-m-d') }}" /></div>
+    <div><label for="time_entry_endDate" class="required">Data zakończenia</label><input type="date" id="time_entry_endDate" name="time_entryEndDate" min="{{ time_entry.startAt|date('Y-m-d') }}" required="required" value="{{ time_entry.endAt|date('Y-m-d') }}" /></div>
     <div><label for="time_entry_endTime" class="required">Godzina zakończenia (HH:MM)</label><input type="text" id="time_entry_endTime" name="time_entryEndTime" required="required" value="{{ time_entry.endAt|date('H:i') }}" /></div>
     <div><label for="time_entry_comment">Comment</label><textarea id="time_entry_comment" name="time_entryComment">{{ time_entry.comment }}</textarea></div>
 
@@ -28,4 +32,18 @@
     <p>
         <a href="{{ path('app_time_entry_index') }}">Powrót do wpisów</a>
     </p>
+
+    <script>
+        const startDateInput = document.getElementById('time_entry_startDate');
+        const endDateInput = document.getElementById('time_entry_endDate');
+
+        function updateDateLimits() {
+            startDateInput.max = endDateInput.value;
+            endDateInput.min = startDateInput.value;
+        }
+
+        startDateInput.addEventListener('change', updateDateLimits);
+        endDateInput.addEventListener('change', updateDateLimits);
+        updateDateLimits();
+    </script>
 {% endblock %}

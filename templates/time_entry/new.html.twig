@@ -5,20 +5,32 @@
 {% block body %}
     <h1>Dodaj wpis </h1>
 
-    {{ form_start(form) }}
+    {% for message in app.flashes('error') %}
+        <p>{{ message }}</p>
+    {% endfor %}
 
-    {{ form_row(form.project) }}
-    {{ form_row(form.startDate) }}
-    {{ form_row(form.startTime) }}
-    {{ form_row(form.endDate) }}
-    {{ form_row(form.endTime) }}
-    {{ form_row(form.comment) }}
+    {% set now = 'now'|date %}
+    <form name="time_entry" method="post" action="{{ path('app_time_entry_new_create') }}" data-turbo="false">
+        <div>
+            <label for="time_entry_project" class="required">Projekt</label>
+            <select id="time_entry_project" name="time_entryProject" required>
+                <option value="" disabled selected>Wybierz projekt</option>
+                {% for project in projects %}
+                    <option value="{{ project.id }}">{{ project.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div><label for="time_entry_startDate" class="required">Data rozpoczęcia</label><input type="date" id="time_entry_startDate" name="time_entryStartDate" required value="{{ now|date('Y-m-d') }}" /></div>
+        <div><label for="time_entry_startTime" class="required">Godzina rozpoczęcia (HH:MM)</label><input type="time" id="time_entry_startTime" name="time_entryStartTime" required value="{{ now|date('H:i') }}" /></div>
+        <div><label for="time_entry_endDate" class="required">Data zakończenia</label><input type="date" id="time_entry_endDate" name="time_entryEndDate" required value="{{ now|date('Y-m-d') }}" /></div>
+        <div><label for="time_entry_endTime" class="required">Godzina zakończenia (HH:MM)</label><input type="time" id="time_entry_endTime" name="time_entryEndTime" required value="{{ now|date('H:i') }}" /></div>
+        <div><label for="time_entry_comment">Komentarz</label><textarea id="time_entry_comment" name="time_entryComment"></textarea></div>
 
-    <button type="submit">Zapisz wpis</button>
-
-    {{ form_end(form) }}
+        <button type="submit">Zapisz wpis</button>
+    </form>
 
     <p>
         <a href="{{ path('app_dashboard') }}">Powrót do dashboardu</a>
     </p>
+
 {% endblock %}

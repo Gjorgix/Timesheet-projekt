@@ -18,6 +18,8 @@ $("#filter-form").on("submit", function (event) {
     });
 });
 
+$("#filter-form").trigger("submit");
+
 function renderReport(response){
     const container = $('#result-container');
     const editUrlTemplate = container.attr('data-edit-url-template');
