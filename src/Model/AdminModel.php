@@ -11,7 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
-class AdminReportModel extends BaseModel
+class AdminModel extends BaseModel
 {
     public function getDataToReport(): array {
         $employeesList = $this->getEm()->getRepository(User::class)->findBy(['isActive' => true], ['lastName' => 'ASC', 'firstName' => 'ASC']);

@@ -3,9 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Project;
-use App\Form\ProjectType;
-use App\Repository\ProjectRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Model\ProjectModel;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,65 +13,53 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 final class ProjectController extends AbstractController
 {
-    #[Route('/admin/projects', name: 'app_project_index')]
-    public function index(ProjectRepository $projectRepository): Response
+    #[Route('/projects', name: 'app_project_list')]
+    public function list(ProjectModel $projectModel): Response
     {
-        $projects = $projectRepository->findAll();
+        $data = $projectModel->getProjectList();
 
-        return $this->render('project/index.html.twig', [
-            'projects' => $projects,
-        ]);
+
+        return $this->render('project/index.html.twig',$data);
     }
 
-    #[Route('/admin/projects/new', name: 'app_project_new')]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response{
-        $project = new Project();
+    #[Route('/projects/new', name: 'app_project_new')]
+    public function new(): Response{
 
-        $form = $this->createForm(ProjectType::class, $project);
-        $form->handleRequest($request);
-
-        if($form->isSubmitted() && $form->isValid()){
-            $entityManager->persist($project);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_project_index');
-        }
-
-        return $this->render('project/new.html.twig', ['form' => $form]);
+        return $this->render('project/new.html.twig');
     }
 
-    #[Route('/admin/projects/{id}/edit', name: 'app_project_edit')]
-    public function edit(Request $request, Project $project, EntityManagerInterface $entityManager):
-        Response{
-        $form = $this->createForm(ProjectType::class, $project);
+    #[Route('/projects/new/create', name: 'app_project_new_create', methods: ['POST'])]
+    public function newCreate(Request $request, ProjectModel $projectModel): Response{
+        $projectModel->newProject($request->request);
 
-        $form->handleRequest($request);
-        if($form->isSubmitted() && $form->isValid()){
+        return $this->redirectToRoute('app_project_list');
+    }
 
-            $entityManager->flush();
-            return $this->redirectToRoute('app_project_index');
-        }
+    #[Route('/projects/{id}/edit', name: 'app_project_edit')]
+    public function edit(Project $project): Response{
 
         return $this->render('project/edit.html.twig', [
             'project' => $project,
-            'form' => $form,
         ]);
     }
+    #[Route('/projects/{id}/edit/update', name: 'app_project_edit_update', methods: ['POST'])]
+    public function editUpdate(Request $request, ProjectModel $projectModel,Project $project): Response{
+        $projectModel->editProject($project,$request->request);
+        return $this->redirectToRoute('app_project_list');
+    }
 
-    #[Route('/admin/projects/{id}/deactivate', name: 'app_project_deactivate', methods: ['POST'])]
-    public function deactivate(Project $project, EntityManagerInterface $entityManager) : Response{
-        $project->setIsActive(false);
-        $entityManager->flush();
-        return $this->redirectToRoute('app_project_index');
+    #[Route('/projects/{id}/deactivate', name: 'app_project_deactivate', methods: ['POST'])]
+    public function deactivate(Project $project, ProjectModel $projectModel) : Response{
+        $projectModel->deactivateProject($project);
+
+        return $this->redirectToRoute('app_project_list');
 
     }
 
-    #[Route('/admin/projects/{id}/activate', name: 'app_project_activate', methods: ['POST'])]
-    public function activate(Project $project, EntityManagerInterface $entityManager): Response
+    #[Route('/projects/{id}/activate', name: 'app_project_activate', methods: ['POST'])]
+    public function activate(Project $project, ProjectModel $projectModel): Response
     {
-        $project->setIsActive(true);
-        $entityManager->flush();
-
-        return $this->redirectToRoute('app_project_index');
+        $projectModel->activateProject($project);
+        return $this->redirectToRoute('app_project_list');
     }
 }

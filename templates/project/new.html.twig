@@ -5,17 +5,19 @@
 {% block body %}
     <h1>Dodaj projekt</h1>
 
-    {{ form_start(form) }}
+    <form id="project_new_form"  method="post" action="{{ path('app_project_new_create') }}" data-turbo="false">
 
-    {{ form_row(form.name) }}
-    {{ form_row(form.description) }}
-    {{ form_row(form.isActive) }}
+        <div><label for="project_name" class="required">Name</label><input type="text" id="project_name" name="project_name"  required="required" maxlength="255" /></div>
+        <div><label for="project_description">Description</label><textarea id="project_description" name="project_description" ></textarea></div>
+        <div><label for="project_isActive">Is active</label><input type="checkbox" id="project_isActive" name="project_isActive" value="1" /></div>
 
-    <button type="submit">Zapisz projekt</button>
+        <button type="submit">Zapisz projekt</button>
+    </form>
 
-    {{ form_end(form) }}
+
 
     <p>
-        <a href="{{ path('app_project_index') }}">Powrót do listy projektów</a>
+        <a href="{{ path('app_project_list') }}">Powrót do listy projektów</a>
     </p>
+
 {% endblock %}
