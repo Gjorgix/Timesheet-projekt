@@ -5,7 +5,7 @@
 {% block body %}
     <h1>Dodaj użytkownika</h1>
 
-    <form name="user" method="post" action="{{ path('app_user_new_create') }}" data-turbo="false">
+    <form name="user" method="post" action="{{ path('app_user_save') }}" data-turbo="false">
 
         <div><label for="user_email" class="required">Email</label><input type="text" id="user_email" name="user_email" required="required" maxlength="180" /></div>
         <div><label for="user_firstName" class="required">First name</label><input type="text" id="user_firstName" name="user_firstName" required="required" maxlength="100" /></div>

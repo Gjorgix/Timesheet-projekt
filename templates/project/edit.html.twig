@@ -5,13 +5,13 @@
 {% block body %}
     <h1>Edytuj projekt</h1>
 
-    <form id="project_new_form"  method="post" action="{{ path('app_project_edit_update', {id:project.id}) }}" data-turbo="false">
+    <form id="project_new_form"  method="post" action="{{ path('app_project_save') }}" data-turbo="false">
 
-        <div><label for="project_name" class="required">Name</label><input type="text" id="project_name" name="project_name"  required="required" maxlength="255" value="{{ project.name() }}"/></div>
-        <div><label for="project_description">Description</label><textarea id="project_description" name="project_description"  >{{ project.description() }}</textarea></div>
+        <div><label for="project_name" class="required">Name</label><input type="text" id="project_name" name="project_name"  required="required" maxlength="255" value="{{ project.name }}"/></div>
+        <div><label for="project_description">Description</label><textarea id="project_description" name="project_description"  maxlength="1024">{{ project.description }}</textarea></div>
 
-        <div><label for="project_isActive">Is active</label><input type="checkbox" id="project_isActive" name="project_isActive" value="1" {% if project.isActive() %}checked="checked"{% endif %}"/></div>
-
+        <div><label for="project_isActive">Is active</label><input type="checkbox" id="project_isActive" name="project_isActive" value="1" {% if project.isActive %}checked="checked"{% endif %}"/></div>
+        <input type="hidden" name="id" value="{{ project.id }}">
         <button type="submit">Zapisz zmiany</button>
     </form>
 

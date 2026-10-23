@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Model\AdminModel;
+use Doctrine\DBAL\Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,14 +22,17 @@ final class AdminController extends AbstractController
 
     #[Route('/report', name: 'app_admin_report')]
     public function report(AdminModel $adminReportModel): Response {
-        $data = $adminReportModel->getDataToReport();
-        return $this->render('admin/report.html.twig', $data);
+        return $this->render('admin/report.html.twig', $adminReportModel->getReportData());
     }
 
 
+    /**
+     * @throws Exception
+     */
     #[Route('/report/ajax', name: 'app_admin_report_ajax', methods: ["POST"])]
     public function reportAjax(Request $request, AdminModel $adminReportModel): Response {
-        $data = $adminReportModel->generateReport($request->request);
+        $filters = $adminReportModel->getFilters($request->request);
+        $data = $adminReportModel->generateReport($filters);
         return new JsonResponse($data, Response::HTTP_OK);
     }
 

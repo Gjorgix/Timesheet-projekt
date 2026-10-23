@@ -9,7 +9,7 @@
         <p>{{ message }}</p>
     {% endfor %}
 
-    <form name="time_entry" method="post" action="{{ path('app_time_entry_edit_update', {id: time_entry.id}) }}">
+    <form name="time_entry" method="post" action="{{ path('app_time_entry_save') }}">
 
     <div>
         <label for="time_entry_project" class="required">Project</label>
@@ -24,7 +24,7 @@
     <div><label for="time_entry_endDate" class="required">Data zakończenia</label><input type="date" id="time_entry_endDate" name="time_entryEndDate" min="{{ time_entry.startAt|date('Y-m-d') }}" required="required" value="{{ time_entry.endAt|date('Y-m-d') }}" /></div>
     <div><label for="time_entry_endTime" class="required">Godzina zakończenia (HH:MM)</label><input type="text" id="time_entry_endTime" name="time_entryEndTime" required="required" value="{{ time_entry.endAt|date('H:i') }}" /></div>
     <div><label for="time_entry_comment">Comment</label><textarea id="time_entry_comment" name="time_entryComment">{{ time_entry.comment }}</textarea></div>
-
+    <input type="hidden" name="id" value="{{ time_entry.id }}">
     <button type="submit">Zapisz zmiany</button>
 
     </form>

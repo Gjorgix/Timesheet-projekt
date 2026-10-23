@@ -12,4 +12,17 @@ class BaseModel
     {
         return $this->entityManager;
     }
+
+    public function beginTransaction()
+    {
+        $this->getEm()->beginTransaction();
+    }
+
+    public function commit() {
+            $this->getEm()->commit();
+    }
+
+    public function rollback() {
+            $this->getEm()->rollback();
+    }
 }

@@ -32,7 +32,6 @@ function renderReport(response){
     }
 
     const employee = response.selected_employee;
-
     container.append(
         $('<h2>').text(
             'Wpisy: ' + employee["firstName"] + ' ' +

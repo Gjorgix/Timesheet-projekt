@@ -5,7 +5,7 @@
 {% block body %}
     <h1>Edytuj użytkownika</h1>
 
-    <form name="user" method="post" action="{{ path('app_user_edit_update',{id: user.id()}) }}">
+    <form name="user" method="post" action="{{ path('app_user_save') }}">
 
         <div><label for="user_email" class="required">Email</label><input type="text" id="user_email" name="user_email" required="required" maxlength="180" value="{{ user.email }}" /></div>
         <div><label for="user_firstName" class="required">First name</label><input type="text" id="user_firstName" name="user_firstName" required="required" maxlength="100" value="{{ user.firstName }}" /></div>
@@ -22,6 +22,7 @@
         <div><label for="user_isActive">Is active</label>
             <input type="checkbox" id="user_isActive" name="user_isActive" value="1" {% if user.isActive %}checked="checked"{% endif %} />
         </div>
+        <input type="hidden" name="id" value="{{ user.id }}">
         <button type="submit">Zapisz zmiany</button>
 
     </form>

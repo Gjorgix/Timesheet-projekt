@@ -10,6 +10,8 @@ $("#filter-form").on("submit", function (event) {
         method: "POST",
         data: $("#filter-form").serialize(),
         success: function (response) {
+            console.log(response.time_entries)
+            console.log(response)
             renderReport(response)
         },
         error: function () {
@@ -18,7 +20,7 @@ $("#filter-form").on("submit", function (event) {
     });
 });
 
-$("#filter-form").trigger("submit");
+
 
 function renderReport(response){
     const container = $('#result-container');
@@ -43,8 +45,8 @@ function renderReport(response){
         timeEntries.forEach((entry)=> {
             const row = $('<tr>');
 
-            row.append(createCell(entry.start_at,"td"));
-            row.append(createCell(entry.end_at,"td"));
+            row.append(createCell(entry.start_at, "td"));
+            row.append(createCell(entry.end_at, "td"));
             row.append(createCell(entry.project,"td"));
             row.append(createCell(formatDuration(entry.duration),"td"));
             row.append(createCell(entry.comment,"td"));
@@ -72,7 +74,6 @@ function renderReport(response){
         const totalsBody = totalsTable.find('tbody');
 
         const totals = response.project_totals;
-        console.log(totals)
 
         let totalMinutes = 0;
 
@@ -112,7 +113,8 @@ function renderReport(response){
         );
     }
 }
-function formatDuration(minutes){
+
+function formatDuration(minutes) {
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
 

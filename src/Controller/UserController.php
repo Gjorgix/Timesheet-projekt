@@ -21,44 +21,35 @@ final class UserController extends AbstractController
     public function list(UserModel $userModel): Response
     {
         $data = $userModel->getUserList();
-
         return $this->render('user/index.html.twig',$data);
     }
 
     #[Route('/users/new', name: 'app_user_new')]
-    public function new(): Response
-    {
+    public function new(): Response{
         return $this->render('user/new.html.twig');
     }
-    #[Route('/users/new/create', name: 'app_user_new_create', methods: ['POST'])]
-    public function newCreate(Request $request, UserModel $userModel, UserPasswordHasherInterface $passwordHasher): Response
-    {
-        $userModel->newUser($request->request, $passwordHasher);
 
+    #[Route('/users/save', name: 'app_user_save', methods: ['POST'])]
+    public function save(Request $request, UserModel $userModel, UserPasswordHasherInterface $passwordHasher): Response{
+        $userModel->saveUser($request->request, $passwordHasher);
         return $this->redirectToRoute('app_user_list');
+
     }
 
     #[Route('/users/{id}/edit', name: 'app_user_edit')]
     public function edit(User $user): Response {
-
         return $this->render('user/edit.html.twig', ['user' => $user,]);
-    }
-
-    #[Route('/users/{id}/edit/update', name: 'app_user_edit_update')]
-    public function editUpdate(User $user,UserModel $userModel, Request $request, UserPasswordHasherInterface $passwordHasher,): Response {
-        $userModel->editUser($user, $request->request, $passwordHasher);
-        return $this->redirectToRoute('app_user_list');
     }
 
     #[Route('/users/{id}/deactivate', name: 'app_user_deactivate')]
     public function deactivate(User $user, UserModel $userModel): Response {
-        $userModel->deactivateUser($user);
+        $userModel->changeActive($user, false);
         return $this->redirectToRoute('app_user_list');
     }
 
     #[Route('/users/{id}/activate', name: 'app_user_activate')]
     public function activate(User $user, UserModel $userModel): Response {
-        $userModel->activateUser($user);
+        $userModel->changeActive($user, true);
         return $this->redirectToRoute('app_user_list');
     }
 

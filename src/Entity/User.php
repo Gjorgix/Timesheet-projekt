@@ -15,50 +15,47 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class User extends BaseEntity implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Column(length: 180)]
-    private ?string $email = null;
+    public ?string $email = null;
 
     /**
      * @var list<string> The user roles
      */
     #[ORM\Column]
-    private array $roles = [];
+    public array $roles = [] {
+        get {
+            $roles = $this->roles;
+            $roles[] = 'ROLE_USER';
+            return array_unique($roles);
+        }
+    }
 
     /**
      * @var string The hashed password
      */
     #[ORM\Column]
-    private ?string $password = null;
+    public ?string $password = null;
 
     #[ORM\Column(length: 100)]
-    private ?string $firstName = null;
+    public ?string $firstName = null;
 
     #[ORM\Column(length: 100)]
-    private ?string $lastName = null;
+    public ?string $lastName = null;
 
     #[ORM\Column]
-    private ?bool $isActive = null;
+    public ?bool $isActive = null;
 
     /**
      * @var Collection<int, TimeEntry>
      */
     #[ORM\OneToMany(targetEntity: TimeEntry::class, mappedBy: 'employee')]
-    private Collection $timeEntries;
+    public Collection $timeEntries {
+        get => $this->timeEntries;
+        set => $value;
+    }
 
     public function __construct()
     {
         $this->timeEntries = new ArrayCollection();
-    }
-
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(string $email): static
-    {
-        $this->email = $email;
-
-        return $this;
     }
 
     /**
@@ -77,20 +74,10 @@ class User extends BaseEntity implements UserInterface, PasswordAuthenticatedUse
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
+
         $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
-    }
-
-    /**
-     * @param list<string> $roles
-     */
-    public function setRoles(array $roles): static
-    {
-        $this->roles = $roles;
-
-        return $this;
     }
 
     /**
@@ -99,13 +86,6 @@ class User extends BaseEntity implements UserInterface, PasswordAuthenticatedUse
     public function getPassword(): ?string
     {
         return $this->password;
-    }
-
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
-
-        return $this;
     }
 
     /**
@@ -119,55 +99,11 @@ class User extends BaseEntity implements UserInterface, PasswordAuthenticatedUse
         return $data;
     }
 
-    public function getFirstName(): ?string
-    {
-        return $this->firstName;
-    }
-
-    public function setFirstName(string $firstName): static
-    {
-        $this->firstName = $firstName;
-
-        return $this;
-    }
-
-    public function getLastName(): ?string
-    {
-        return $this->lastName;
-    }
-
-    public function setLastName(string $lastName): static
-    {
-        $this->lastName = $lastName;
-
-        return $this;
-    }
-
-    public function isActive(): ?bool
-    {
-        return $this->isActive;
-    }
-
-    public function setIsActive(bool $isActive): static
-    {
-        $this->isActive = $isActive;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, TimeEntry>
-     */
-    public function getTimeEntries(): Collection
-    {
-        return $this->timeEntries;
-    }
-
     public function addTimeEntry(TimeEntry $timeEntry): static
     {
         if (!$this->timeEntries->contains($timeEntry)) {
             $this->timeEntries->add($timeEntry);
-            $timeEntry->setEmployee($this);
+            $timeEntry->employee = $this;
         }
 
         return $this;
@@ -177,8 +113,8 @@ class User extends BaseEntity implements UserInterface, PasswordAuthenticatedUse
     {
         if ($this->timeEntries->removeElement($timeEntry)) {
 
-            if ($timeEntry->getEmployee() === $this) {
-                $timeEntry->setEmployee(null);
+            if ($timeEntry->employee === $this) {
+                $timeEntry->employee = null;
             }
         }
 

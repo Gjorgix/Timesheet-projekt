@@ -2,102 +2,117 @@
 
 namespace App\Model;
 
-use App\Entity\TimeEntry;
+use App\Entity\Project;
 use App\Entity\User;
-use App\Form\TimeEntryFilterType;
-use App\Repository\UserRepository;
 use DateTime;
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\DBAL\Exception;
 use Symfony\Component\HttpFoundation\ParameterBag;
-use Symfony\Component\HttpFoundation\Request;
 
 class AdminModel extends BaseModel
 {
-    public function getDataToReport(): array {
-        $employeesList = $this->getEm()->getRepository(User::class)->findBy(['isActive' => true], ['lastName' => 'ASC', 'firstName' => 'ASC']);
-
-        return [
-            'employeesList' => $employeesList,
-        ];
-    }
-
-    public function generateReport(ParameterBag $data): array
+    public function getReportData(): array
     {
-        $employeeId = $data->getInt('employee_id');
-        $from = $data->get("from");
-        $to = $data->get("to");
-        $limit = $data->get("limit");
-
-        $selectedEmployee = $this->getEm()->getRepository(User::class)->find($employeeId);
-
-        $queryBuilder = $this->getEm()
-                ->getRepository(TimeEntry::class)
-                ->createQueryBuilder('t')
-                ->where('t.employee = :employee')
-                ->setParameter('employee', $selectedEmployee)
-                ->orderBy('t.startAt', 'ASC');
-
-            if ($from) {
-                $from = DateTime::createFromFormat('Y-m-d',$from)->setTime(0, 0, 0);
-
-                $queryBuilder
-                    ->andWhere('t.startAt >= :from')
-                    ->setParameter('from', $from);
-            }
-
-            if ($to) {
-                $to = DateTime::createFromFormat('Y-m-d',$to)->setTime(23, 59, 59);
-
-                $queryBuilder
-                    ->andWhere('t.startAt <= :to')
-                    ->setParameter('to', $to);
-            }
-
-            if ($limit) {
-                $queryBuilder
-                    ->setMaxResults($limit);
-            }
-
-        $timeEntries = $queryBuilder
-            ->getQuery()
-            ->getResult();
-
-        $projectTotals = [];
-
-        foreach ($timeEntries as $timeEntry) {
-            $projectName = $timeEntry->getProject()->getName();
-            $duration = $timeEntry->getDurationInMinutes();
-
-            if (!isset($projectTotals[$projectName])) {
-                $projectTotals[$projectName] = 0;
-            }
-
-            $projectTotals[$projectName] += $duration;
-        }
-
         return [
-
-            'selected_employee' => [
-                'employee_id' => $employeeId,
-                'firstName' => $selectedEmployee->getFirstName(),
-                'lastName' => $selectedEmployee->getLastName(),
-            ],
-            'time_entries' => array_map(fn (TimeEntry $entry) => [
-                'start_at' => $entry->getStartAt()?->format('Y-m-d H:i:s'),
-                'end_at' => $entry->getEndAt()?->format('Y-m-d H:i:s'),
-                'project' => $entry->getProject()->getName(),
-                'duration' => $entry->getDurationInMinutes(),
-                'comment' => $entry->getComment(),
-            ], $timeEntries),
-            'project_totals' => array_map(
-                static fn (string $project, int $minutes) => [
-                    'project' => $project,
-                    'minutes' => $minutes,
-                ],
-                array_keys($projectTotals),
-                array_values($projectTotals),
+            'projects'=>$this->getEm()->getRepository(Project::class)->findAll(),
+            'employeesList' => $this->getEm()->getRepository(User::class)->findBy(
+                ['isActive' => true],
+                ['lastName' => 'ASC', 'firstName' => 'ASC'],
             ),
         ];
     }
 
+    /**
+     * @throws Exception
+     */
+    public function generateReport(array $filters): array
+    {
+        $employee = $this->getEm()->getRepository(User::class)->find($filters['employee_id']);
+
+        if (!$employee instanceof User) {
+            return [
+                'selected_employee' => null,
+                'time_entries' => [],
+                'project_totals' => [],
+            ];
+        }
+
+        return [
+            'selected_employee' => [
+                'employee_id' => $employee->id,
+                'firstName' => $employee->firstName,
+                'lastName' => $employee->lastName,
+            ],
+            'time_entries' => $this->getEntriesList($filters, $employee),
+            'project_totals' => $this->getProjectTotals($filters, $employee),
+        ];
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getEntriesList(Array $filters, User $employee): array
+    {
+
+        $parameters = ['employee' => $employee->id];
+        $parameters['from'] = $filters['from'];
+        $parameters['to'] = $filters['to'];
+        $parameters['project'] = $filters['project'];
+
+
+        $sql = 'SELECT
+                to_char(t.start_at, \'YYYY-MM-DD HH24:MI\') AS start_at,
+                to_char(t.end_at, \'YYYY-MM-DD HH24:MI\') AS end_at,
+                p.name AS project,
+                FLOOR(EXTRACT(EPOCH FROM (t.end_at - t.start_at)) / 60)::int AS duration,
+                t.comment AS comment
+                FROM time_entry t
+                INNER JOIN project p ON p.id = t.project_id
+                WHERE t.employee_id = :employee AND
+                t.start_at BETWEEN :from AND :to AND
+                (:project = 0 OR t.project_id = :project)
+                ORDER BY t.start_at ASC';
+
+        return $this->getEm()
+            ->getConnection()
+            ->executeQuery($sql, $parameters)
+            ->fetchAllAssociative();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getProjectTotals(Array $filters, User $employee): array
+    {
+        $parameters = ['employee' => $employee->id];
+        $parameters['from'] = $filters['from'];
+        $parameters['to'] = $filters['to'];
+
+        $sql =
+            'WITH filtered_entries AS (
+                SELECT t.id, t.project_id, t.start_at, t.end_at
+                FROM time_entry t
+                WHERE t.employee_id = :employee AND
+                t.start_at BETWEEN :from AND :to
+            )
+            SELECT
+                p.name AS project,
+                SUM(FLOOR(EXTRACT(EPOCH FROM (t.end_at - t.start_at)) / 60)) AS minutes
+            FROM filtered_entries t
+            INNER JOIN project p ON p.id = t.project_id
+            GROUP BY p.id, p.name
+            ORDER BY p.name ASC';
+
+        return $this->getEm()->getConnection()->executeQuery($sql, $parameters)->fetchAllAssociative();
+    }
+
+    public function getFilters(ParameterBag $data): array
+    {
+
+        return [
+            'employee_id' => $data->getInt('employee_id'),
+            'from' => $data->getString('from', new DateTime('-1 days')->format('Y-m-d')),
+            'to' => $data->getString('to', new DateTime()->format('Y-m-d')),
+            'project' => $data->getInt('project')
+        ];
+    }
 }

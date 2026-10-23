@@ -9,40 +9,33 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 class ProjectModel extends BaseModel
 {
     public function getProjectList(): array {
-        $projects = $this->getEm()->getRepository(Project::class)->findBy([], ['createdAt' => 'DESC']);
+        $projectList = $this->getEm()->getRepository(Project::class)->findBy([], ['createdAt' => 'DESC']);
 
         return [
-            'projects' => $projects
+            'projectList' => $projectList
         ];
     }
 
-    public function newProject(ParameterBag $data): void
-    {
-        $project_new = new Project();
-        $project_new->setName($data->get('project_name'));
-        $project_new->setDescription($data->get('project_description'));
-        $project_new->setIsActive($data->has('project_isActive'));
+    public function save(ParameterBag $data): void {
+        $id = $data->getInt('id');
+        $project = $this->getEm()->getRepository(Project::class)->find($id);
 
-        $this->getEm()->persist($project_new);
+        if (!$project) {
+            $project = new Project(); //Unity of work //Poczytać o transakcjach
+            $this->getEm()->persist($project);
+        }
+
+        $project->name = $data->getString("project_name");
+        $project->description = $data->getString("project_description");
+        $project->isActive = $data->getBoolean("project_isActive");
+
         $this->getEm()->flush();
+
     }
 
-    public function editProject(Project $project, ParameterBag $data): void
+    public function changeActive(Project $project, bool $active) :void
     {
-        $project->setName($data->get('project_name'));
-        $project->setDescription($data->get('project_description'));
-        $project->setIsActive($data->get('project_isActive'));
-        $this->getEm()->flush();
-    }
-
-    public function activateProject(Project $project): void
-    {
-        $project->setIsActive(true);
-        $this->getEm()->flush();
-    }
-    public function deactivateProject(Project $project): void
-    {
-        $project->setIsActive(false);
+        $project->isActive = $active;
         $this->getEm()->flush();
     }
 

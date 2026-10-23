@@ -10,7 +10,7 @@
     {% endfor %}
 
     {% set now = 'now'|date %}
-    <form name="time_entry" method="post" action="{{ path('app_time_entry_new_create') }}" data-turbo="false">
+    <form name="time_entry" method="post" action="{{ path('app_time_entry_save') }}" data-turbo="false">
         <div>
             <label for="time_entry_project" class="required">Projekt</label>
             <select id="time_entry_project" name="time_entryProject" required>

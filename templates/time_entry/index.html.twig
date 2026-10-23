@@ -16,9 +16,17 @@
 
     <form id="filter-form" method="POST" action="#"  data-turbo="false">
 
-        <div><label for="from">Data od</label><input type="date" id="from" name="from" /></div>
-        <div><label for="to">Data do</label><input type="date" id="to" name="to" /></div>
-        <div><label for="limit">Ilość wpisów</label><input type="number" id="limit" name="limit" /></div>
+        <div><label for="from">Data od</label><input required type="date" id="from" name="from" /></div>
+        <div><label for="to">Data do</label><input required type="date" id="to" name="to" /></div>
+        <div>
+            <label for="project">Projekt</label>
+            <select id="project" name="project">
+                <option value="0" selected>Wszystkie projekty</option>
+                {% for project in projects %}
+                    <option value="{{ project.id }}">{{ project.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
         <button name="filter-form-btn" type="submit" >Filtruj</button>
     </form>

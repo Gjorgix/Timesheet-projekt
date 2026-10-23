@@ -222,14 +222,12 @@ class AppFixtures extends Fixture
     ): User {
         $user = new User();
 
-        $user->setEmail($email);
-        $user->setFirstName($firstName);
-        $user->setLastName($lastName);
-        $user->setRoles([$role]);
-        $user->setIsActive(true);
-        $user->setPassword(
-            $this->passwordHasher->hashPassword($user, $plainPassword)
-        );
+        $user->email = $email;
+        $user->firstName = $firstName;
+        $user->lastName = $lastName;
+        $user->roles = [$role];
+        $user->isActive = true;
+        $user->password = $this->passwordHasher->hashPassword($user, $plainPassword);
 
         $manager->persist($user);
 
@@ -262,11 +260,11 @@ class AppFixtures extends Fixture
     ): TimeEntry {
         $timeEntry = new TimeEntry();
 
-        $timeEntry->setEmployee($employee);
-        $timeEntry->setProject($project);
-        $timeEntry->setStartAt(new \DateTime($startAt));
-        $timeEntry->setEndAt(new \DateTime($endAt));
-        $timeEntry->setComment($comment);
+        $timeEntry->employee = $employee;
+        $timeEntry->project = $project;
+        $timeEntry->startAt = new \DateTimeImmutable($startAt);
+        $timeEntry->endAt = new \DateTimeImmutable($endAt);
+        $timeEntry->comment = $comment;
 
         $manager->persist($timeEntry);
 
