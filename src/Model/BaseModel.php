@@ -13,16 +13,18 @@ class BaseModel
         return $this->entityManager;
     }
 
-    public function beginTransaction()
+    public function beginTransaction(): void
     {
         $this->getEm()->beginTransaction();
     }
 
-    public function commit() {
+    public function commit(): void
+    {
             $this->getEm()->commit();
     }
 
-    public function rollback() {
+    public function rollback(): void
+    {
             $this->getEm()->rollback();
     }
 }

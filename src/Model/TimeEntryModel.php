@@ -13,6 +13,7 @@ use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Throwable;
 
 class TimeEntryModel extends BaseModel
 {
@@ -71,7 +72,8 @@ class TimeEntryModel extends BaseModel
                 to_char(t.end_at, \'YYYY-MM-DD HH24:MI\') AS end_at,
                 p.name AS project,
                 FLOOR(EXTRACT(EPOCH FROM (t.end_at - t.start_at)) / 60)::int AS duration,
-                t.comment AS comment
+                t.comment AS comment,
+                t.id AS id
                 FROM time_entry t
                 INNER JOIN project p ON p.id = t.project_id
                 WHERE t.employee_id = :employee AND
@@ -109,39 +111,55 @@ class TimeEntryModel extends BaseModel
         ];
     }
 
-     public function saveTimeEntry(ParameterBag $data, UserInterface $user): bool
+    /**
+     * @throws Throwable
+     */
+    public function saveTimeEntry(ParameterBag $data, UserInterface $user): bool
     {
         $id = $data->getInt('id');
         $timeEntry = $this->getEm()->getRepository(TimeEntry::class)->find($id);
 
-        if (!$timeEntry) {
-            $timeEntry = new TimeEntry();
-            $timeEntry->employee = $user;
-            $this->getEm()->persist($timeEntry);
-        }
-
         $startAt = DateTimeImmutable::createFromFormat('!Y-m-d H:i', $data->get('time_entryStartDate'). ' ' . $data->get('time_entryStartTime'));
         $endAt = DateTimeImmutable::createFromFormat('!Y-m-d H:i', $data->get('time_entryEndDate'). ' ' . $data->get('time_entryEndTime'));
-
-
         if ($endAt <= $startAt) {
             return false;
         }
 
+        $comment = $data->getString('time_entryComment');
         $project = $this->getEm()
             ->getRepository(Project::class)
             ->find($data->get('time_entryProject'));
-
         if (!$project instanceof Project) {
             throw new InvalidArgumentException('Projekt nie istnieje');
         }
 
-        $timeEntry->project = $project;
-        $timeEntry->startAt = $startAt;
-        $timeEntry->endAt = $endAt;
-        $timeEntry->comment = $data->get('time_entryComment');
 
-        $this->getEm()->flush();
+        if (!$timeEntry) {
+            $timeEntry = new TimeEntry();
+            $isNew = true;
+        }else{
+            $isNew = false;
+        }
+
+        $this->beginTransaction();
+
+        try {
+            if ($isNew) {
+                $timeEntry->employee = $user;
+                $this->getEm()->persist($timeEntry);
+            }
+
+            $timeEntry->project = $project;
+            $timeEntry->startAt = $startAt;
+            $timeEntry->endAt = $endAt;
+            $timeEntry->comment = $comment;
+
+            $this->getEm()->flush();
+            $this->commit();
+        } catch (Throwable $exception) {
+            $this->rollback();
+            throw $exception;
+        }
 
         return true;
     }
