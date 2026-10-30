@@ -7,9 +7,18 @@
 
     <form name="user" method="post" action="{{ path('app_user_save') }}">
 
-        <div><label for="user_email" class="required">Email</label><input type="text" id="user_email" name="user_email" required="required" maxlength="180" value="{{ user.email }}" /></div>
-        <div><label for="user_firstName" class="required">First name</label><input type="text" id="user_firstName" name="user_firstName" required="required" maxlength="100" value="{{ user.firstName }}" /></div>
-        <div><label for="user_lastName" class="required">Last name</label><input type="text" id="user_lastName" name="user_lastName" required="required" maxlength="100" value="{{ user.lastName }}" /></div>
+        <div>
+            <label for="user_email" class="required">Email</label>
+            <input type="text" id="user_email" name="user_email" required="required" maxlength="180" value="{{ user.email }}" />
+        </div>
+        <div>
+            <label for="user_firstName" class="required">First name</label>
+            <input type="text" id="user_firstName" name="user_firstName" required="required" maxlength="100" value="{{ user.firstName }}" />
+        </div>
+        <div>
+            <label for="user_lastName" class="required">Last name</label>
+            <input type="text" id="user_lastName" name="user_lastName" required="required" maxlength="100" value="{{ user.lastName }}" />
+        </div>
 
         <div>
             <label for="user_role" class="required">Role</label>

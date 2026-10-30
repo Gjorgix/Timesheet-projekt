@@ -3,58 +3,60 @@
 {% block title %}Projekty{% endblock %}
 
 {% block body %}
-    <h1>Projekty</h1>
+    <h1 class="content-header py-3">Projekty</h1>
 
-    <p>
-        <a href="{{ path('app_project_new') }}">Dodaj projekt</a>
-    </p>
+    <a class="btn btn-primary mb-3" href="{{ path('app_project_new') }}">Dodaj projekt</a>
 
-    <table>
-        <thead>
-        <tr>
-            <th>Nazwa</th>
-            <th>Opis</th>
-            <th>Status</th>
-            <th>Akcje</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        {% for project in projectList %}
-            <tr>
-                <td>{{ project.name }}</td>
-                <td>{{ project.description }}</td>
-                <td>
-                    {% if project.isActive %}
-                        Aktywny
+    <div class="card card-primary card-outline">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th>Nazwa</th>
+                        <th>Opis</th>
+                        <th>Status</th>
+                        <th>Akcje</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for project in projectList %}
+                        <tr>
+                            <td>{{ project.name }}</td>
+                            <td>{{ project.description ?: '—' }}</td>
+                            <td>
+                                {% if project.isActive %}
+                                    <span class="badge text-bg-success">Aktywny</span>
+                                {% else %}
+                                    <span class="badge text-bg-secondary">Nieaktywny</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a class="btn btn-sm btn-outline-primary" href="{{ path('app_project_edit', {id: project.id}) }}">Edytuj</a>
+                                    <form method="post" class="d-inline"
+                                          action="{{ project.isActive
+                                              ? path('app_project_deactivate', {id: project.id})
+                                              : path('app_project_activate', {id: project.id}) }}">
+                                        {% if project.isActive %}
+                                            <button class="btn btn-sm btn-outline-danger" type="submit">Dezaktywuj</button>
+                                        {% else %}
+                                            <button class="btn btn-sm btn-outline-success" type="submit">Aktywuj</button>
+                                        {% endif %}
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
                     {% else %}
-                        Nieaktywny
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{{ path('app_project_edit', {id: project.id}) }}">Edytuj</a>
-                    <form method="post"
-                    {% if project.isActive %}
-                              action="{{ path('app_project_deactivate', {id: project.id}) }}"
-                              style="display: inline">
-                            <button type="submit">Dezaktywuj</button>
-                    {% else %}
-                        action="{{ path('app_project_activate', {id: project.id}) }}"
-                        style="display: inline">
-                        <button type="submit">Aktywuj</button>
-                    {% endif %}
-                    </form>
+                        <tr>
+                            <td colspan="4" class="text-center text-body-secondary py-4">Brak projektów.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="4">Brak projektów.</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    <p>
-        <a href="{{ path('app_admin') }}">Panel administratora</a>
-    </p>
+    <a class="btn btn-outline-secondary mt-2" href="{{ path('app_admin') }}">Panel administratora</a>
 {% endblock %}

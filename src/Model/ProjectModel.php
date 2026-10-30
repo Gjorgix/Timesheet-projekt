@@ -4,6 +4,7 @@ namespace App\Model;
 
 use App\Entity\Project;
 use Symfony\Component\HttpFoundation\ParameterBag;
+use Throwable;
 
 
 class ProjectModel extends BaseModel
@@ -18,18 +19,25 @@ class ProjectModel extends BaseModel
 
     public function save(ParameterBag $data): void {
         $id = $data->getInt('id');
-        $project = $this->getEm()->getRepository(Project::class)->find($id);
+        try {
+            $this->beginTransaction();
+            $project = $this->getEm()->getRepository(Project::class)->find($id);
 
-        if (!$project) {
-            $project = new Project(); //Unity of work //Poczytać o transakcjach
-            $this->getEm()->persist($project);
+            if (!$project) {
+                $project = new Project(); //Unity of work //Poczytać o transakcjach
+                $this->getEm()->persist($project);
+            }
+
+            $project->name = $data->getString("project_name");
+            $project->description = $data->getString("project_description");
+            $project->isActive = $data->getBoolean("project_isActive");
+
+            $this->getEm()->flush();
+            $this->commit();
+        } catch (Throwable $exception) {
+            $this->rollback();
+            throw $exception;
         }
-
-        $project->name = $data->getString("project_name");
-        $project->description = $data->getString("project_description");
-        $project->isActive = $data->getBoolean("project_isActive");
-
-        $this->getEm()->flush();
 
     }
 

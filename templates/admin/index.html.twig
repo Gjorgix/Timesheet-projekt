@@ -3,30 +3,25 @@
 {% block title %}Panel administratora{% endblock %}
 
 {% block body %}
-    <h1>Panel administratora</h1>
+    <h1 class="content-header py-3">Panel administratora</h1>
+    <div class="row g-5">
+        <div class="col-md-2">
+            <a class="btn btn-outline-primary mt-2" href="{{ path('app_user_list') }}">Zarządzanie użytkownikami</a>
+        </div>
+        <div class="col-md-2">
+            <div class="card card-primary card-outline mb-4">
+                <div class="card-header">
+                    <a class="btn btn-outline-primary mt-2" href="{{ path('app_project_list') }}">Zarządzanie projektami</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card card-primary card-outline mb-4">
+                <div class="card-header">
+                    <a href="{{ path('app_admin_report') }}">Raporty pracowników</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <p>Witaj w panelu administracyjnym.</p>
-
-    <ul>
-        <li>
-            <a href="{{ path('app_user_list') }}">
-                Zarządzanie użytkownikami
-            </a>
-        </li>
-
-        <li>
-            <a href="{{ path('app_project_list') }}">
-                Zarządzanie projektami
-            </a>
-        </li>
-
-        <li>
-            <a href="{{ path('app_admin_report') }}">
-                Raporty pracowników
-            </a>
-        </li>
-    </ul>
-    <p>
-        <a href="{{ path('app_admin') }}">Panel administratora</a>
-    </p>
 {% endblock %}

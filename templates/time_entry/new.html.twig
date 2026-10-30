@@ -20,17 +20,25 @@
                 {% endfor %}
             </select>
         </div>
-        <div><label for="time_entry_startDate" class="required">Data rozpoczęcia</label><input type="date" id="time_entry_startDate" name="time_entryStartDate" required value="{{ now|date('Y-m-d') }}" /></div>
-        <div><label for="time_entry_startTime" class="required">Godzina rozpoczęcia (HH:MM)</label><input type="time" id="time_entry_startTime" name="time_entryStartTime" required value="{{ now|date('H:i') }}" /></div>
-        <div><label for="time_entry_endDate" class="required">Data zakończenia</label><input type="date" id="time_entry_endDate" name="time_entryEndDate" required value="{{ now|date('Y-m-d') }}" /></div>
-        <div><label for="time_entry_endTime" class="required">Godzina zakończenia (HH:MM)</label><input type="time" id="time_entry_endTime" name="time_entryEndTime" required value="{{ now|date('H:i') }}" /></div>
-        <div><label for="time_entry_comment">Komentarz</label><textarea id="time_entry_comment" name="time_entryComment"></textarea></div>
+
+{#        Wykorzystac biblioteke datepicker, bootstarp i adminlte, jquery validation #}
+        <div>
+            <label for="time_entry_startDate" class="required">Data rozpoczęcia</label>
+            <input type="datetime-local" id="time_entry_startDate" name="time_entryStartDate" required value="{{ now|date('Y-m-d') }}" />
+        </div>
+        <div>
+            <label for="time_entry_endDate" class="required">Data zakończenia</label>
+            <input type="datetime-local" id="time_entry_endDate" name="time_entryEndDate" required value="{{ now|date('Y-m-d') }}" />
+        </div>
+        <div>
+            <label for="time_entry_comment">Komentarz</label><textarea id="time_entry_comment" name="time_entryComment"></textarea>
+        </div>
 
         <button type="submit">Zapisz wpis</button>
     </form>
 
     <p>
-        <a href="{{ path('app_dashboard') }}">Powrót do dashboardu</a>
+        <a href="{{ path('app_time_entry_index') }}">Powrót do listy wpisów</a>
     </p>
 
 {% endblock %}

@@ -59,13 +59,7 @@ php bin/console doctrine:database:create
 php bin/console doctrine:migrations:migrate
 ```
 
-### 6. Załadowanie danych testowych
-
-```bash
-php bin/console doctrine:fixtures:load
-```
-
-### 7. Uruchomienie aplikacji
+### 6. Uruchomienie aplikacji
 
 ```bash
 symfony server:start

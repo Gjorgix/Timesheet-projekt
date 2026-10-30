@@ -26,11 +26,12 @@ function renderReport(response){
     const container = $('#result-container');
     const editUrlTemplate = container.attr('data-edit-url-template');
     container.empty();
+    container.addClass("card card-primary card-outline col-9")
 
     container.append(
-        $('<h2>').text(
+        $('<h3>').text(
             'Wpisy: '
-        )
+        ).addClass("card-header")
     );
 
     const timeEntries = response.time_entries || [];
@@ -39,7 +40,7 @@ function renderReport(response){
             $("<h3>").text("Brak wpisów.")
         );
     } else {
-        const entryTable = createTable(["Start","Koniec","Projekt","Czas twania", "Komentarz", "Akcja"])
+        const entryTable = createTable(["Start","Koniec","Projekt","Czas", "Komentarz", "Akcja"])
 
         const entryBody= $("<tbody>")
         timeEntries.forEach((entry)=> {
@@ -54,7 +55,7 @@ function renderReport(response){
             const actionCell = $('<td>').append(
                 $('<a>')
                     .attr('href', editUrlTemplate.replace('ID', String(entry.id)))
-                    .text('Edytuj')
+                    .text('Edytuj').addClass("btn btn-sm btn-outline-primary")
             );
 
             row.append(actionCell);
@@ -64,10 +65,12 @@ function renderReport(response){
 
 
         entryTable.append(entryBody)
-        container.append(entryTable)
+        container.append(
+            $('<div>').addClass('table-responsive table-scroll').append(entryTable)
+        )
 
         container.append(
-            $('<h2>').text('Podsumowanie czasu według projektu')
+            $('<h3>').text('Podsumowanie').addClass("card-header")
         );
 
         const totalsTable = createTable(['Projekt','Łączny czas']);
@@ -98,7 +101,9 @@ function renderReport(response){
         );
 
         totalsBody.append(totalRow);
-        container.append(totalsTable);
+        container.append(
+            $('<div>').addClass('table-responsive table-scroll').append(totalsTable)
+        );
     }
 
     if (timeEntries.length === 0) {
@@ -108,8 +113,8 @@ function renderReport(response){
             $('<tr>').append(createCell('Razem', 'th'), createCell('00:00', 'th'))
         );
         container.append(
-            $('<h2>').text('Podsumowanie czasu według projektu'),
-            totalsTable
+            $('<h3>').text('Podsumowanie czasu według projektu').addClass("card-header"),
+            $('<div>').addClass('table-responsive table-scroll').append(totalsTable)
         );
     }
 }
@@ -131,6 +136,7 @@ function createTable(headers) {
         $headerRow.append(createCell(header, 'th'));
     });
 
+    $table.addClass("table table-striped table-hover")
     $thead.append($headerRow);
     $table.append($thead);
     $table.append($('<tbody>'));

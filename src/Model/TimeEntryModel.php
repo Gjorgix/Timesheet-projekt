@@ -65,8 +65,6 @@ class TimeEntryModel extends BaseModel
         $parameters['to'] = $data->getString('to', new DateTime()->format('Y-m-d'));
         $parameters['project'] = $data->getInt('project');
 
-
-
         $sql = 'SELECT
                 to_char(t.start_at, \'YYYY-MM-DD HH24:MI\') AS start_at,
                 to_char(t.end_at, \'YYYY-MM-DD HH24:MI\') AS end_at,
@@ -117,38 +115,29 @@ class TimeEntryModel extends BaseModel
     public function saveTimeEntry(ParameterBag $data, UserInterface $user): bool
     {
         $id = $data->getInt('id');
-        $timeEntry = $this->getEm()->getRepository(TimeEntry::class)->find($id);
-
-        $startAt = DateTimeImmutable::createFromFormat('!Y-m-d H:i', $data->get('time_entryStartDate'). ' ' . $data->get('time_entryStartTime'));
-        $endAt = DateTimeImmutable::createFromFormat('!Y-m-d H:i', $data->get('time_entryEndDate'). ' ' . $data->get('time_entryEndTime'));
-        if ($endAt <= $startAt) {
-            return false;
-        }
-
         $comment = $data->getString('time_entryComment');
-        $project = $this->getEm()
-            ->getRepository(Project::class)
-            ->find($data->get('time_entryProject'));
-        if (!$project instanceof Project) {
-            throw new InvalidArgumentException('Projekt nie istnieje');
-        }
-
-
-        if (!$timeEntry) {
-            $timeEntry = new TimeEntry();
-            $isNew = true;
-        }else{
-            $isNew = false;
-        }
-
-        $this->beginTransaction();
 
         try {
-            if ($isNew) {
+            $this->beginTransaction();
+
+            $timeEntry = $this->getEm()->getRepository(TimeEntry::class)->find($id);
+            $startAt = new DateTimeImmutable($data->get('time_entryStartDate'));
+            $endAt = new DateTimeImmutable($data->get('time_entryEndDate'));
+            $project = $this->getEm()
+                ->getRepository(Project::class)
+                ->find($data->get('time_entryProject'));
+
+            if (!$timeEntry) {
+                $timeEntry = new TimeEntry();
                 $timeEntry->employee = $user;
                 $this->getEm()->persist($timeEntry);
             }
-
+            if ($endAt <= $startAt) {
+                throw new InvalidArgumentException("data zakończenia powinna być po dacie rozpoczęcia");
+            }
+            if (!$project instanceof Project) {
+                throw new InvalidArgumentException('Projekt nie istnieje');
+            }
             $timeEntry->project = $project;
             $timeEntry->startAt = $startAt;
             $timeEntry->endAt = $endAt;

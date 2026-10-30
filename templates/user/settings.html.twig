@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ustawienia{% endblock %}
+
+{% block body %}
+    <h1 class="content-header">Ustawienia konta</h1>
+
+
+    <div class="card card-primary card-outline col-md-6">
+        <div class="card-body">
+            <form method="post" action="{{ path('app_user_settings_save') }}" data-turbo="false">
+
+                <div class="mb-3">
+                    <label for="user_email" class="form-label">Email</label>
+                    <input id="user_email" name="user_email" type="email" class="form-control" value="{{ user.email }}" maxlength="180" required>
+                </div>
+                <div class="mb-3">
+                    <label for="user_plainPassword" class="form-label">Nowe hasło (opcjonalnie)</label>
+                    <input id="user_plainPassword" name="user_plainPassword" type="password" class="form-control" >
+                </div>
+                <div class="mb-3">
+                    <label for="user_firstName" class="form-label">Imię</label>
+                    <input id="user_firstName" name="user_firstName" type="text" class="form-control" value="{{ user.firstName }}" maxlength="100" required>
+                </div>
+                <div class="mb-3">
+                    <label for="user_lastName" class="form-label">Nazwisko</label>
+                    <input id="user_lastName" name="user_lastName" type="text" class="form-control" value="{{ user.lastName }}" maxlength="100" required>
+                </div>
+                <input type="hidden" name="id" value="{{ user.id }}">
+                <input type="hidden" id="user_isActive" name="user_isActive" value="1" checked="checked" />
+                <input type="hidden" id="user_role" name="user_role"  {% if 'ROLE_ADMIN' in user.roles %}value="ROLE_ADMIN"{% endif %}/>
+                <button type="submit" class="btn btn-primary">Zapisz ustawienia</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

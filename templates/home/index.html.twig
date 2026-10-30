@@ -4,18 +4,38 @@
 {% block title %}Strona główna{% endblock %}
 
 {% block body %}
-    <h1>Strona główna</h1>
-
-    <p>System zarządzania czasem pracy.</p>
 
     {% if app.user %}
-        <p>
-            Witaj, {{ app.user.firstName }}!
-        </p>
+        <h1 class=" content-header py-3">Witaj, {{ user.firstName }}!</h1>
+        <div class="row">
+            <div class="col-md-2">
+                <div class="card card-primary card-outline mb-4">
+                    <div class="card-header">
+                        <a href="{{ path('app_time_entry_index') }}">Moje wpisy </a>
+                    </div>
+                </div>
+            </div>
+
+            {% if is_granted('ROLE_ADMIN') %}
+                <div class="col-md-2">
+                    <div class="card card-primary card-outline mb-4">
+                        <div class="card-header">
+                            <a href="{{ path('app_admin') }}">Panel administratora</a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
     {% else %}
-        <p>
-            <a href="{{ path('app_login') }}">Zaloguj się</a>, aby korzystać z systemu.
-        </p>
+        <h1 class=" content-header py-4">Strona główna</h1>
+
+        <div class="col-md-2">
+            <div class="card card-primary card-outline mb-4">
+                <div class="card-header">
+                    <a href="{{ path('app_login') }}">Zaloguj się</a>, aby korzystać z systemu.
+                </div>
+            </div>
+        </div>
     {% endif %}
 {% endblock %}
 
